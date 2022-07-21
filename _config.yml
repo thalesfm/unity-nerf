@@ -1,4 +1,4 @@
 theme: jekyll-theme-slate
 markdown: kramdown
 kramdown:
-  math_engine: +nil+
+  math_engine: null
