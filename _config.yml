@@ -1,4 +1,1 @@
-theme: jekyll-theme-slate
-markdown: kramdown
-kramdown:
-  math_engine: null
+theme: jekyll-theme-cayman
