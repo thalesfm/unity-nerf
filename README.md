@@ -19,6 +19,17 @@ $$
 \end{aligned}
 $$
 
+$$
+\begin{align*}
+	\partial_{\mathbf{x}} L_i(\mathbf{p}, \boldsymbol{\omega})
+	    &= \partial_{\mathbf{x}} L_o(t(\mathbf{p}, \boldsymbol{\omega}), -\boldsymbol{\omega}) \\
+	\partial_{\mathbf{x}} L_o(\mathbf{p}, \boldsymbol{\omega})
+	    &= \partial_{\mathbf{x}} L_e(\mathbf{p}, \boldsymbol{\omega}) \\
+	    &+ \int_{S^2} \Big[\ \partial_\mathbf{x} L_i(\mathbf{p}, \boldsymbol{\omega}^\prime)\ f(\mathbf{p}, \boldsymbol{\omega}, \boldsymbol{\omega}^\prime)
+	        + L_i(\mathbf{p}, \boldsymbol{\omega}^\prime)\ \partial_{\mathbf{x}} f(\mathbf{p}, \boldsymbol{\omega}, \boldsymbol{\omega}^\prime)\ \Big]\ \mathrm{d} \boldsymbol{\omega}^\prime
+\end{align*}
+$$
+
 This project aims to implement real-time rendering of [NeRF](https://www.matthewtancik.com/nerf) scenes inside Unity. It is based on the method developed by [Yu et al.](https://alexyu.net/plenoctrees/) and works by caching the results of the NeRF network using a sparse voxel octree (SVO) structure with GPU acceleration.
 
 **Note:** Due to GitHub's file size limits, some of the files required to run the example scenes included in this project are not tracked as part of this repo. These can be found in the "releases" section as downloads.
