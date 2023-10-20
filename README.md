@@ -1,6 +1,6 @@
 # Unity NeRF
 
-![Cover](Docs/Figures/cover.png)
+ <img src="https://github.com/thalesfm/unity-nerf/assets/9205127/a9b2fd01-5f3b-421a-a6ec-21a19dc355a7" alt="demo" width="1280" height="501">
 
 This project aims to implement real-time rendering of [NeRF](https://www.matthewtancik.com/nerf) scenes inside Unity. It is based on the method developed by [Yu et al.](https://alexyu.net/plenoctrees/) and works by caching the results of the NeRF network using a sparse voxel octree (SVO) structure with GPU acceleration.
 
