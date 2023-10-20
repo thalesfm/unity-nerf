@@ -1,6 +1,7 @@
 # Unity NeRF
 
- <img src="https://github.com/thalesfm/unity-nerf/assets/9205127/a9b2fd01-5f3b-421a-a6ec-21a19dc355a7" alt="demo" width="100%">
+<img src="https://github.com/thalesfm/unity-nerf/assets/9205127/a9b2fd01-5f3b-421a-a6ec-21a19dc355a7xxx" alt="" width="100%"
+     onerror="this.onerror=null; this.src='https://github.com/thalesfm/unity-nerf/raw/master/Docs/Figures/cover.png'" />
 
 ## About
 
