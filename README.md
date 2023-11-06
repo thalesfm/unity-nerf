@@ -1,6 +1,6 @@
 # Unity NeRF
 
-<img src="https://github.com/thalesfm/unity-nerf/assets/9205127/a9b2fd01-5f3b-421a-a6ec-21a19dc355a7" alt="" width="100%"
+<img src="https://github.com/thalesfm/unity-nerf/assets/9205127/113fe5e7-2193-4ac5-a33f-955dbc639cc0" alt="" width="100%"
      onerror="this.onerror=null; this.src='https://thalesfm.github.io/unity-nerf/Docs/Figures/fallback.png'" />
 
 ## About
