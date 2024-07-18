@@ -1,0 +1,96 @@
+body {
+	font-family: "Titillium Web", "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+    font-size: 1em;
+	font-weight: 300;
+    padding: 0;
+}
+main {
+    margin: 0 auto;
+	width: 980px;
+}
+header {
+    margin: 0 auto;
+    font-size: 1em;
+    text-align: center;
+}
+.author-list {
+    margin: 12px auto;
+    text-align: center;
+}
+/* a[rel="author"] { */
+.author {
+    font-size: 1.25em;
+    margin-inline: 32px;
+}
+.affil-list {
+    font-size: 1.25em;
+    margin: 12px auto;
+}
+nav {
+    margin: 18px auto;
+    padding: 7px 0;
+}
+.nav-item {
+  background-color: #1367a7;
+  color: #ecf0f1 !important;
+  margin-inline: 8px;
+  padding: 7px 20px;
+  border-radius: 999px;
+}
+.preview {
+    margin: 40px auto;
+    text-align: center;
+}
+footer {
+    background-color: #eee;
+    margin: 0 auto;
+    padding: 48px;
+    text-align: center;
+}
+h1, h2 {
+	text-align: center;
+}
+h1 {
+	font-weight: 500;
+	font-size: 2.5em;
+	/* line-height: 1.15em; */
+    /* margin: 32px 0; */
+}
+h2 {
+    font-weight: 400;
+	font-size: 1.75em;
+	/* margin: 16px 0px 4px 0px; */
+}
+table {
+    margin: 0 auto;
+}
+a:link, a:visited {
+	color: #1367a7;
+	text-decoration: none;
+}
+a:hover {
+	color: #208799;
+}
+section {
+    margin: 32px 0px;
+    text-align: justify;
+}
+table {
+    caption-side: bottom;
+}
+.links {
+    text-align: center;
+    display: flex;
+	justify-content: center;
+	margin: 16px 0px;
+}
+.link-block {
+    margin: 0 8px;
+    padding: 8px;
+    color: #ecf0f1 !important;
+    text-decoration: none;
+    border-radius: 4px;
+    background-color: #1367a7;
+    font-size: 20px;
+    font-weight: 600;
+}

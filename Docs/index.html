@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href='https://fonts.googleapis.com/css?family=Titillium+Web:400,600,400italic,600italic,300,300italic'>
+	<link rel= "stylesheet" href= "https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css" >
+</head>
+
+<body>
+
+<main>
+<header>
+	<h1>Real-Time Rendering of Neural Radiance Fields<br/>(Work-in-Progress)</h1>
+
+	<section class="author-list">
+		<span class="author">
+			<a rel="author" href="https://github.com/thalesfm">Thales Magalhães</a>
+		</span>
+		<span class="author">
+			<a rel="author" href="https://lvelho.impa.br">Luiz Velho</a> (advisor)
+		</span>
+	</section>
+
+	<div class="affil-list">
+		<div>IMPA</div>
+	</div>
+
+	<nav>
+		<a class="nav-item" href="https://github.com/thalesfm/unity-nerf/blob/691b7019ec25ffb585f99a38f3ec803183d14ae5/Docs/Tech-Report.pdf">
+			<i class="las la-file-pdf"></i>
+			<span>Technical Report</span>
+		</a>
+	  <a class="nav-item" href="https://github.com/thalesfm/unity-nerf">
+			<i class="lab la-github"></i>
+	   	Code
+	  </a>
+	  <a class="nav-item" href="">
+			<i class="las la-file-archive"></i>
+			Download
+		</a>
+	</nav>
+</header>
+
+<div class="preview">
+	<img src="https://github.com/thalesfm/unity-nerf/assets/9205127/113fe5e7-2193-4ac5-a33f-955dbc639cc0"
+	     alt=""
+	     width="100%" height="auto"
+	     onerror="this.onerror=null; this.src='https://thalesfm.github.io/unity-nerf/Docs/Figures/fallback.png'" />
+</div>
+
+<!-- Abstract -->
+<section>
+	We propose an approach to rendering Neural Radiance Fields (<a href="https://www.matthewtancik.com/nerf">NeRFs</a>) in real-time using a hybrid rendering pipeline developed as an extension to an existing, fully-featured rasterizing renderer. Notably, this enables our method to render scenes containing a combination of NeRF and mesh-based assets. We base our method on the approach of <a href="https://alexyu.net/plenoctrees/">PlenOctrees</a> by Yu et al. in which the results of the NeRF network are cached using a sparse voxel octree (SVO) structure which can be efficiently queried using GPU acceleration. We also provide an implementation based on the Unity's forward rendering pipeline.
+</section>
+
+<section>
+	<h2>Method</h2>
+
+	<p>Our method bridges the gap between the triangle mesh representation traditionally used in the rasterization of 3D assets and the volumetric nature of NeRFs by representing NeRFs using convex hulls.
+	<!--- Our method represents NeRF content within a scene volumetrically using 3D hulls. -->
+	We render NeRFs via a ray-marching procedure implemented using programmable pixel shaders: For each camera ray intersecting the NeRF's hull, we sample the SVO iteratively along the path of the ray using custom vertex and fragment shaders. The resulting radiance, transmittance, and depth are then used to produce the final image.</p>
+</section>
+
+<section>
+	<h2>Results</h2>
+
+	<p>Our method is capable of rendering NeRFs in real time as part of complex scenes along with mesh-based 3D assets while achieving performance that is comparable to state-of-the-art methods. We do this using widely supported graphics hardware functionality (and without relying on vendor-specific features) by basing our method on portable, well-established rendering techniques. We hope this is a step in making NeRFs more accessible to a larger audience by enabling their adoption in contexts where this was previously not practical.</p>
+
+	<figure>
+		<img src="./Figures/results.png" alt="Method results" width="928px" height="auto"/>
+		<figcaption><b>Figure:</b> Qualitative results of our method using a relatively small cache size of 256<sup>3</sup>. Background environments for each sample scene were built using textured 3D meshes.</figcaption>
+	</figure>
+</section>
+
+<section>
+	<h2>Benchmarks</h2>
+
+	<table>
+		<thead>
+			<tr>
+				<th>Method</th>
+				<th>GPU</th>
+				<th>Baseline</th>
+				<th>FPS</th>
+				<th>Speedup</th>
+			</tr>
+		</thead>
+		<tbody>
+			 <tr>
+				 <td>FastNeRF</td>
+				 <td>RTX 3090</td>
+				 <!--- 35.58 TFLOPS -->
+				 <td>0.06 </td>
+				 <td>172.4 </td>
+				 <td>2873 </td>
+			 </tr>
+			 <tr>
+				 <td>KiloNeRF</td>
+				 <td>GTX 1080Ti</td>
+				 <!--- 11.34 TFLOPS -->
+				 <td>0.018</td>
+				 <td>38.46</td>
+				 <td>2137</td>
+			 </tr>
+			 <tr>
+				 <td>PlenOctrees</td>
+				 <td>Tesla V100</td>
+				 <!--- 14.13 TFLOPS -->
+				 <td>0.023</td>
+				 <td>167.68</td>
+				 <td>7290</td>
+			 </tr>
+			 <tr>
+				 <td>SNeRF</td>
+				 <td>MacBook Pro</td>
+				 <!---  5.30 TFLOPS -->
+				 <td>0.03 </td>
+				 <td>84.06</td>
+				 <td>2802</td>
+			 </tr>
+			 <tr>
+				 <td><bold>Our Method</bold></td>
+				 <td>RX 6700 XT</td>
+				 <!--- 13.21 TFLOPS -->
+				 <td>N/A</td>
+				 <td>174.9 </td>
+				 <td>N/A</td>
+			 </tr>
+		</tbody>
+
+		<caption>
+			<b>Table:</b> Column "baseline" represents the frame rate for the vanilla NeRF model using the specified hardware.
+			Results measured using the NeRF synthetic dataset at a resolution of 800x800.
+			Preliminary results for our method were measured using the Unity Editor’s preview mode.
+			The baseline for our hardware was omitted since a fair comparison with NeRF would require Nvidia hardware for GPU acceleration support.
+		</caption>
+	</table>
+</section>
+</main>
+
+<footer>
+	Icons courtesy of <a href="https://icons8.com">icons8.com</a>.
+</footer>
+
+</body>
+</html>
