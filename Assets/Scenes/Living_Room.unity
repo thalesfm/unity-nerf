@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028352, g: 0.22571376, b: 0.3069224, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -135,6 +135,7 @@ GameObject:
   - component: {fileID: 804557904}
   - component: {fileID: 804557903}
   - component: {fileID: 804557906}
+  - component: {fileID: 804557907}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -200,13 +201,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 804557902}
-  m_LocalRotation: {x: -0.07111089, y: -0.9117515, z: 0.3635658, w: -0.17740439}
-  m_LocalPosition: {x: -7.378535, y: 7.180374, z: 32.208416}
+  m_LocalRotation: {x: 0.045695882, y: 0.95445144, z: -0.23326638, w: 0.1803364}
+  m_LocalPosition: {x: -7.2, y: 6.06, z: 31.87}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 27.501, y: 158.65, z: 0.2}
 --- !u!114 &804557906
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -239,6 +240,20 @@ MonoBehaviour:
   m_RequiresDepthTexture: 0
   m_RequiresColorTexture: 0
   m_Version: 2
+--- !u!114 &804557907
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 804557902}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c084ac8051b124a4caaeee097335e24c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  point: {x: -6.39, y: 4.964, z: 29.75}
+  degreesPerSec: 30
 --- !u!1 &1058586367
 GameObject:
   m_ObjectHideFlags: 0
@@ -437,6 +452,91 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &1806694423
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2301403444521122369, guid: abf680defb9e45e4da6a87859b9f2cb4, type: 3}
+      propertyPath: m_RootOrder
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 2301403444521122369, guid: abf680defb9e45e4da6a87859b9f2cb4, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 2.2935
+      objectReference: {fileID: 0}
+    - target: {fileID: 2301403444521122369, guid: abf680defb9e45e4da6a87859b9f2cb4, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.7645
+      objectReference: {fileID: 0}
+    - target: {fileID: 2301403444521122369, guid: abf680defb9e45e4da6a87859b9f2cb4, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 2.2935
+      objectReference: {fileID: 0}
+    - target: {fileID: 2301403444521122369, guid: abf680defb9e45e4da6a87859b9f2cb4, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -6.39
+      objectReference: {fileID: 0}
+    - target: {fileID: 2301403444521122369, guid: abf680defb9e45e4da6a87859b9f2cb4, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 4.964
+      objectReference: {fileID: 0}
+    - target: {fileID: 2301403444521122369, guid: abf680defb9e45e4da6a87859b9f2cb4, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 29.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 2301403444521122369, guid: abf680defb9e45e4da6a87859b9f2cb4, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.9876148
+      objectReference: {fileID: 0}
+    - target: {fileID: 2301403444521122369, guid: abf680defb9e45e4da6a87859b9f2cb4, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2301403444521122369, guid: abf680defb9e45e4da6a87859b9f2cb4, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.15689804
+      objectReference: {fileID: 0}
+    - target: {fileID: 2301403444521122369, guid: abf680defb9e45e4da6a87859b9f2cb4, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2301403444521122369, guid: abf680defb9e45e4da6a87859b9f2cb4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2301403444521122369, guid: abf680defb9e45e4da6a87859b9f2cb4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 378.05402
+      objectReference: {fileID: 0}
+    - target: {fileID: 2301403444521122369, guid: abf680defb9e45e4da6a87859b9f2cb4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2301403444521122371, guid: abf680defb9e45e4da6a87859b9f2cb4, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2301403444521122373, guid: abf680defb9e45e4da6a87859b9f2cb4, type: 3}
+      propertyPath: _fileName
+      value: Assets/Resources/svo_sh16_hotdog_128.bin
+      objectReference: {fileID: 0}
+    - target: {fileID: 2301403444521122373, guid: abf680defb9e45e4da6a87859b9f2cb4, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2301403444521122374, guid: abf680defb9e45e4da6a87859b9f2cb4, type: 3}
+      propertyPath: m_Name
+      value: SVO_Hotdog_128
+      objectReference: {fileID: 0}
+    - target: {fileID: 2301403444521122374, guid: abf680defb9e45e4da6a87859b9f2cb4, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: abf680defb9e45e4da6a87859b9f2cb4, type: 3}
 --- !u!1001 &3661554369366489250
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -500,9 +600,25 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2301403444521122371, guid: abf680defb9e45e4da6a87859b9f2cb4, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2301403444521122373, guid: abf680defb9e45e4da6a87859b9f2cb4, type: 3}
+      propertyPath: _fileName
+      value: Assets/Resources/svo_sh16_hotdog_256.bin
+      objectReference: {fileID: 0}
+    - target: {fileID: 2301403444521122373, guid: abf680defb9e45e4da6a87859b9f2cb4, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2301403444521122374, guid: abf680defb9e45e4da6a87859b9f2cb4, type: 3}
       propertyPath: m_Name
-      value: SVO_Hotdog_128
+      value: SVO_Hotdog_256
+      objectReference: {fileID: 0}
+    - target: {fileID: 2301403444521122374, guid: abf680defb9e45e4da6a87859b9f2cb4, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: abf680defb9e45e4da6a87859b9f2cb4, type: 3}
