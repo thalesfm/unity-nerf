@@ -26,4 +26,4 @@ This project aims to implement real-time rendering of [NeRF](https://www.matthew
 
 ## Requirements
 
-- Unity 2021.1.23f1
+- Unity 2022.3.41f1 (LTS)
