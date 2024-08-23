@@ -28,9 +28,9 @@ namespace PythonParser
     // Omitted:
     // public class PythonComplex ...
 
-    public class PyInt : PyLiteral<int>
+    public class PyInt : PyLiteral<long>
     {
-        public PyInt(int value) : base(value) { }
+        public PyInt(long value) : base(value) { }
     }
 
     public class PyFloat : PyLiteral<double>

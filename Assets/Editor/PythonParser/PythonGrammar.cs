@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Sprache;
-// using static Python.Parser.StringLiteralGrammar;
+using static PythonParser.ParseHelpers;
 
 namespace PythonParser
 {
@@ -19,13 +19,25 @@ namespace PythonParser
         public static readonly Parser<PyNone> None  =
             Parse.String("None").Return(new PyNone());
         
-        public static readonly Parser<PyString> StringLiteral =
-            StringLiteralGrammar.StringLiteral.Select(s => new PyString(s));
+        // TODO: Other identifiers
+        public static readonly Parser<PyObject> Identifier = True.Or(False).Or<PyObject>(None);
+
+        // TODO
+        // public static readonly Parser<PyObject> ImagNumber = null;
         
-        // TODO:
-        // BytesLiteral
-        // Int, Float, etc.
-        // Lists, tuples
-        // Dictionary
+        // WARN: Initialization order not specified!
+        public static readonly Parser<PyObject> Literal =
+            StringLiteral.Or(BytesLiteral).Or(Integer).Or(FloatNumber);
+            // .Or(ImagNumber);
+
+        public static readonly Parser<PyObject> Enclosure = Unexpected<PyObject>("not implemented");
+
+        public static readonly Parser<PyObject> Atom = Identifier.Or(Literal).Or(Enclosure);
+
+        public static readonly Parser<PyObject> Expression = Atom;
+
+        // TODO: list
+        // TODO: tuple
+        // TODO: dict
     }
 }
