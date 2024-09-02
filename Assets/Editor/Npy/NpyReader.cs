@@ -25,7 +25,7 @@ public static class NpyReader
         }
     }
 
-    public static string ReadHeader(BinaryReader reader)
+    public static NpyHeader ReadHeader(BinaryReader reader)
     {
         (int, int) version = ReadMagic(reader);
         int headerLength;
@@ -50,6 +50,8 @@ public static class NpyReader
         }
 
         var headerBytes = reader.ReadBytes(headerLength);
-        return Encoding.ASCII.GetString(headerBytes);
+        var headerStr = Encoding.ASCII.GetString(headerBytes);
+        UnityEngine.Debug.Log("Got header: " + headerStr);
+        return NpyHeader.Parse(headerStr);
     }
 }

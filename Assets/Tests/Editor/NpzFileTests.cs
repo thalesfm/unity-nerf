@@ -22,7 +22,7 @@ public class NpzFileTests
         var npz = NpzFile.OpenRead(@"Assets/Resources/oct_lego.npz");
         var arrStream = npz.GetArrayStream("child.npy");
         var arrBinReader = new BinaryReader(arrStream);
-        string header = NpyReader.ReadHeader(arrBinReader);
+        NpyHeader header = NpyReader.ReadHeader(arrBinReader);
         Debug.Log("Header: " + header);
     }
 }
