@@ -1,4 +1,5 @@
 
+using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
 using Sprache;
@@ -19,10 +20,10 @@ public class NpzFileTests
     [Test]
     public void TestGetArray()
     {
-        var npz = NpzFile.OpenRead(@"Assets/Resources/oct_lego.npz");
-        var arrStream = npz.GetArrayStream("child.npy");
-        var arrBinReader = new BinaryReader(arrStream);
-        NpyHeader header = NpyReader.ReadHeader(arrBinReader);
-        Debug.Log("Header: " + header);
+        NpzFile npz = NpzFile.OpenRead(@"Assets/Resources/oct_lego.npz");
+        foreach (string key in npz.Keys)
+        {
+            var array = npz[key];
+        }
     }
 }

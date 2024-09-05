@@ -4,66 +4,41 @@ using Sprache;
 using UnityEditor;
 using System.Data.SqlTypes;
 using System.Numerics;
+using System.Linq;
 
-public class PythonParserTests
+public class NpyHeaderGrammarTests
 {
-    // [TestCase("\"double quoted string\"", "double quoted string")]
-    // [TestCase("'single quoted string'", "single quoted string")]
-    // [TestCase(@"'\\\'\""\n'", "\\\'\"\n")]
-    // public static void TestStringLiteralParser(string input, string expected)
-    // {
-    //     string output = PythonGrammar.PythonString.Parse(input).Value;
-    //     Assert.That(output, Is.EqualTo(expected));
-    // }
+    [TestCase("\"double quoted string\"", "double quoted string")]
+    [TestCase("'single quoted string'", "single quoted string")]
+    public static void TestPythonStringParser(string input, string expected)
+    {
+        string output = NpyHeaderGrammar.PythonString.Parse(input);
+        Assert.That(output, Is.EqualTo(expected));
+    }
 
-    // [TestCase("'''this is a long string'''")]
-    // [TestCase("r'this is a raw string'")]
-    // [TestCase("f'this is an f-string'")]
-    // public static void TestStringLiteralParserWasNotSuccessful(string input)
-    // {
-    //     IResult<PyObject> result = PythonGrammar.PythonString.TryParse(input);
-    //     Assert.That(result.WasSuccessful, Is.False);
-    // }
+    [TestCase(@"'\\\'\""\n'")]
+    public static void TestStringLiteralParserWasNotSuccessful(string input)
+    {
+        IResult<string> result = NpyHeaderGrammar.PythonString.TryParse(input);
+        Assert.That(result.WasSuccessful, Is.False);
+    }
 
-    // [TestCase("b'abcdef'")]
-    // public void TestBytesLiteralParserWasNotSuccessful(string input)
-    // {
-    //     IResult<object> result = PythonGrammar.BytesLiteral.TryParse(input);
-    //     Assert.That(result.WasSuccessful, Is.False);
-    // }
+    [TestCase("3", 3)]
+    [TestCase("7", 7)]
+    [TestCase("2147483647", 2147483647)]
+    public static void TestPythonIntegerParser(string input, long expected)
+    {
+        long output = NpyHeaderGrammar.PythonInteger.End().Parse(input);
+        Assert.That(output, Is.EqualTo(expected));
+    }
 
-    // [TestCase("3", 3)]
-    // [TestCase("7", 7)]
-    // [TestCase("2147483647", 2147483647)]
-    // // [TestCase("79228162514264337593543950336", ...)]
-    // [TestCase("0o177", 127)]
-    // [TestCase("0o377", 255)]
-    // [TestCase("0b10110111", 0b10110111)]
-    // [TestCase("0xdeadbeef", 0xdeadbeef)]
-    // // [TestCase("100_000_000_000", ...)]
-    // public static void TestIntegerLiteralParser(string input, long expected)
-    // {
-    //     long output = PythonGrammar.PythonInteger.End().Parse(input).Value;
-    //     Assert.That(output, Is.EqualTo(expected));
-    // }
-
-    // [TestCase("3.14", 3.14)]
-    // [TestCase("10.", 10.0)]
-    // [TestCase(".001", .001)]
-    // [TestCase("1e100", 1e100)]
-    // [TestCase("3.14e-10", 3.14e-10)]
-    // [TestCase("0e0", 0.0)]
-    // [TestCase("3.14_15_93", 3.141593)]
-    // public static void TestFloatParser(string input, double expected)
-    // {
-    //     double output = PythonGrammar.FloatNumber.End().Parse(input).Value;
-    //     Assert.That(output, Is.EqualTo(expected));
-    // }
-
-    // [TestCase("10")]
-    // public void TestFloatParserWasNotSuccessful(string input)
-    // {
-    //     IResult<PyObject> result = PythonGrammar.FloatNumber.TryParse(input);
-    //     Assert.That(result.WasSuccessful, Is.False);
-    // }
+    [TestCase("(1, 2, 3)", new int[] {1, 2, 3})]
+    [TestCase("(1 ,2,3,)", new int[] {1, 2, 3})]
+    [TestCase("(1,)", new int[] {1})]
+    [TestCase("()", new int[0])]
+    public static void TestPythonTupleParser(string input, IEnumerable<int> expected)
+    {
+        IEnumerable<int> output = NpyHeaderGrammar.PythonTuple<int>(NpyHeaderGrammar.PythonInteger).End().Parse(input);
+        Assert.That(output.SequenceEqual(expected));
+    }
 }

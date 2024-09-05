@@ -16,6 +16,7 @@ public readonly struct NpyHeader
 
     public static NpyHeader Parse(string s)
     {
+        // IResult<Dictionary> result = NpyHeaderGrammar.HeaderDictionary.TryParse(s);
         Dictionary<string, object> dict = NpyHeaderGrammar.HeaderDictionary.Parse(s);
         string descr = dict["descr"] as string;
         DType dtype = DType.Parse(descr);
