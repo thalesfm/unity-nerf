@@ -5,19 +5,18 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 
-using NDArray = System.Object;
-
-public class NpzFile : IDisposable, IReadOnlyDictionary<string, NDArray>
+public class NpzFile : IDisposable, IReadOnlyDictionary<string, object>
 {
     private ZipArchive archive;
 
+    // FIXME: Parses and discards all arrays!
     public IEnumerable<string> Keys => this.Select(e => e.Key);
 
-    public IEnumerable<NDArray> Values => this.Select(e => e.Value);
+    public IEnumerable<object> Values => this.Select(e => e.Value);
 
     public int Count => this.Count();
 
-    public NDArray this[string key]
+    public object this[string key]
     {
         get => GetArray(key);
     }
@@ -33,13 +32,15 @@ public class NpzFile : IDisposable, IReadOnlyDictionary<string, NDArray>
         return new NpzFile(stream);
     }
 
-    public NDArray GetArray(string name)
+    public object GetArray(string name)
     {
         var entry = archive.GetEntry(name);
         if (entry != null)
         {
             Stream stream = entry.Open();
-            return NpyReader.Read(stream);
+            BinaryReader reader = new BinaryReader(stream);
+            var npy = new NpyReader(reader);
+            return npy.ReadArray();
         }
         else
         {
@@ -64,7 +65,7 @@ public class NpzFile : IDisposable, IReadOnlyDictionary<string, NDArray>
         return archive.GetEntry(key) != null;
     }
 
-    public bool TryGetValue(string key, out NDArray value)
+    public bool TryGetValue(string key, out object value)
     {
         value = GetArray(key);
         return value != null;
@@ -75,11 +76,11 @@ public class NpzFile : IDisposable, IReadOnlyDictionary<string, NDArray>
         return GetEnumerator();
     }
 
-    public IEnumerator<KeyValuePair<string, NDArray>> GetEnumerator()
+    public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
     {
         foreach (ZipArchiveEntry entry in archive.Entries)
         {
-            NDArray array = GetArray(entry.FullName);
+            object array = GetArray(entry.FullName);
             yield return KeyValuePair.Create(entry.FullName, array);
         }
     }

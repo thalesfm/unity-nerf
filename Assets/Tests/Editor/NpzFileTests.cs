@@ -1,15 +1,8 @@
-
-using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
-using Sprache;
-using UnityEngine;
-using UnityEngine.TestTools;
-using UnityEngine.UIElements;
 
 public class NpzFileTests
 {
-    // A Test behaves as an ordinary method
     [Test]
     public void TestConstructor()
     {
@@ -23,6 +16,7 @@ public class NpzFileTests
         NpzFile npz = NpzFile.OpenRead(@"Assets/Resources/oct_lego.npz");
         foreach (string key in npz.Keys)
         {
+            // UnityEngine.Debug.Log($"Reading {key}");
             var array = npz[key];
         }
     }
