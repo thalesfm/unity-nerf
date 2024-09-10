@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
-using Codice.CM.SEIDInfo;
 using UnityEngine;
 
 // #if !NET7_0_OR_GREATER
@@ -55,51 +54,41 @@ public class NpyReader // : IDisposable
         return NpyHeader.Parse(headerStr);
     }
 
-    private static object ReadArrayData(BinaryReader reader, NpyHeader header)
+    private static Array ReadArrayData(BinaryReader reader, NpyHeader header)
     {
         DType dtype = new DType(header.Descr);
-        Debug.Log($"Got dtype {dtype}");
+        int length = header.Shape.Aggregate(1, (acc, x) => acc * x);
+        byte[] data = reader.ReadBytes(dtype.ItemSize * length);
 
-        if (header.Shape.Count() == 0)
+        if (dtype.Char == 'U')
         {
-            // UnityEngine.Debug.Log("Reading scalar");
-            return dtype.Read(reader);
+            // StreamReader readerUTF32 = new StreamReader(reader.BaseStream, Encoding.UTF32);
+            // char[] buffer = new char[dtype.ItemSize / 4];
+            string[] array = new string[length];
+
+            for (int i = 0; i < length; ++i)
+            {
+                // readerUTF32.Read(buffer);
+                // array[i] = new string(buffer);
+                ReadOnlySpan<byte> bytes = data.AsSpan(i * dtype.ItemSize, dtype.ItemSize);
+                array[i] = Encoding.UTF32.GetString(bytes);
+            }
+            return array;
         }
         else
         {
-            // UnityEngine.Debug.Log($"Reading array w/ shape {header.Shape}");
-            Array data = Array.CreateInstance(dtype.Type, header.Shape);
-            // Span<T> span = new Span<float>(data);
-            foreach (int[] indices in Indices(header.Shape))
-            {
-                object value = dtype.Read(reader);
-                string indicesStr = string.Join(", ", indices.Select(x => x.ToString()));
-                // Debug.Log($"ReadArrayData: read {value} (a {value.GetType()}) for index ({indicesStr})");
-                data.SetValue(value, indices);
-            }
-            return data;
-        }
-
-        static IEnumerable<int[]> Indices(int[] dimensions)
-        {
-            if (dimensions.Length == 0)
-            {
-                yield return new int[0];
-            }
-            else
-            {
-                for (int i = 0; i < dimensions[0]; ++i)
-                {
-                    foreach (int[] indices in Indices(dimensions[1..]))
-                    {
-                        yield return indices.Prepend(i).ToArray();
-                    }
-                }           
-            }
+            Array array = Array.CreateInstance(dtype.Type, length);
+            Buffer.BlockCopy(data, 0, array, 0, data.Length);
+            return array;
         }
     }
 
-    public object ReadArray()
+    public NDArray<T> Read<T>()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Array ReadArray()
     {
         NpyVersion version = ReadMagic(reader);
         NpyHeader header = ReadArrayHeader(reader, version);

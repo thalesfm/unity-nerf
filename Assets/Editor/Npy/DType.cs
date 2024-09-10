@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using Sprache;
 
+// TODO: Handle strings
+
 internal readonly struct DType
 {
     // public readonly Type Type;
@@ -24,7 +26,8 @@ internal readonly struct DType
             '?' => typeof(bool),
             'b' => typeof(sbyte),
             'B' => typeof(byte),
-            // 'u' => typeof(char),
+            // 'u' => typeof(string),
+            'U' => typeof(string),
             'h' => typeof(short),
             'H' => typeof(ushort),
             'i' => typeof(int),
@@ -32,6 +35,7 @@ internal readonly struct DType
             'l' => typeof(int),
             'L' => typeof(uint),
             'q' => typeof(long),
+            'e' => typeof(short), // HACK: Should be Half
             'Q' => typeof(ulong),
             'f' => typeof(float),
             'd' => typeof(double),
@@ -56,7 +60,10 @@ internal readonly struct DType
         string typestr = TypeStr.Parse(_typestr);
         ByteOrder = typestr[0];
         Kind = typestr[1];
+
         ItemSize = typestr.Length > 2 ? int.Parse(typestr[2..]) : 1;
+        if (Kind == 'U') ItemSize *= 4;
+
         Char = (Kind, ItemSize) switch
         {
             ('?', 1) => throw new NotSupportedException(),
@@ -70,6 +77,7 @@ internal readonly struct DType
             ('u', 2) => 'H',
             ('u', 4) => 'L',
             ('u', 8) => 'Q',
+            ('f', 2) => 'e',
             ('f', 4) => 'f',
             ('f', 8) => 'd',
             ('c', _) => throw new NotSupportedException(),
@@ -78,7 +86,7 @@ internal readonly struct DType
             ('O', _) => throw new NotSupportedException(),
             ('S', _) => throw new NotSupportedException(),
             ('a', _) => throw new NotSupportedException(),
-            ('U', _) => throw new NotSupportedException(),
+            ('U', _) => 'U',
             ('V', _) => throw new NotSupportedException(),
             _        => throw new ArgumentException(),
         };
@@ -89,11 +97,7 @@ internal readonly struct DType
     public object Read(BinaryReader reader)
     {
         // byte[] bytes = reader.ReadBytes(ItemSize);
-        // // bool x = BitConverter.IsLittleEndian;
-        // if (false)
-        // {
-        //     bytes = bytes.Reverse().ToArray(); // Slow AF
-        // }
+        // BitConverter.IsLittleEndian;
         bool IsLittleEndian = true; // TODO
         return (IsLittleEndian, Char) switch
         {
@@ -113,6 +117,7 @@ internal readonly struct DType
             (true, 'd') => reader.ReadDouble(),
             (true, 'b') => reader.ReadSByte(),
             (true, 'f') => reader.ReadSingle(),
+            (true, 'e') => throw new NotImplementedException(),
             (true, 'i') => reader.ReadInt32(),
             (true, 'h') => reader.ReadInt16(),
             (true, 'l') => reader.ReadInt32(),

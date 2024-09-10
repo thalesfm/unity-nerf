@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-public class NDArray
+public class NDArray<T>
 {
     
 }
