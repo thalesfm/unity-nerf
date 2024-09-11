@@ -1,11 +1,11 @@
 using System;
-using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Linq;
-using System.Numerics;
 using System.Text;
-using UnityEngine;
+
+// #if !NET5_0_OR_GREATER
+// using Half = HalfCompat;
+// #endif
 
 // #if !NET7_0_OR_GREATER
 // using NET_7_0_CompatExtensions;
@@ -14,8 +14,8 @@ using UnityEngine;
 // TODO: Implement IDisposable
 public class NpyReader // : IDisposable
 {
-    private static readonly byte[] MAGIC_PREFIX = { 147, 78, 85, 77, 80, 89 };
-    private static readonly int MAGIC_LEN = MAGIC_PREFIX.Count() + 2;
+    private static readonly byte[] MagicPrefix = { 147, 78, 85, 77, 80, 89 };
+    private static readonly int MagicLength = MagicPrefix.Count() + 2;
 
     private BinaryReader reader;
 
@@ -26,11 +26,11 @@ public class NpyReader // : IDisposable
 
     private static NpyVersion ReadMagic(BinaryReader reader)
     {
-        byte[] magic = reader.ReadBytes(MAGIC_LEN);
-        if (magic.Length == MAGIC_LEN && magic.AsSpan(0, 6).SequenceEqual(MAGIC_PREFIX))
+        byte[] magic = reader.ReadBytes(MagicLength);
+        if (magic.Length == MagicLength && magic.AsSpan(0, 6).SequenceEqual(MagicPrefix))
         {
-            byte major = magic[MAGIC_PREFIX.Count() + 0];
-            byte minor = magic[MAGIC_PREFIX.Count() + 1];
+            byte major = magic[MagicPrefix.Count() + 0];
+            byte minor = magic[MagicPrefix.Count() + 1];
             return new NpyVersion(major, minor);
         }
         else
@@ -50,7 +50,7 @@ public class NpyReader // : IDisposable
         };
 
         byte[] headerBytes = reader.ReadBytes(headerLength);
-        string headerStr = Encoding.ASCII.GetString(headerBytes);
+        string headerStr = Encoding.ASCII.GetString(headerBytes); // FIXME: Header could be UTF-8
         return NpyHeader.Parse(headerStr);
     }
 
@@ -62,18 +62,21 @@ public class NpyReader // : IDisposable
 
         if (dtype.Char == 'U')
         {
-            // StreamReader readerUTF32 = new StreamReader(reader.BaseStream, Encoding.UTF32);
-            // char[] buffer = new char[dtype.ItemSize / 4];
             string[] array = new string[length];
 
             for (int i = 0; i < length; ++i)
             {
-                // readerUTF32.Read(buffer);
-                // array[i] = new string(buffer);
                 ReadOnlySpan<byte> bytes = data.AsSpan(i * dtype.ItemSize, dtype.ItemSize);
                 array[i] = Encoding.UTF32.GetString(bytes);
             }
             return array;
+        }
+        else if (dtype.Char == 'e')
+        {
+            ushort[] array = new ushort[length];
+            Buffer.BlockCopy(data, 0, array, 0, data.Length);
+            // return array;
+            return array.Select(BitConverterCompat.UInt16BitsToHalf).ToArray();
         }
         else
         {

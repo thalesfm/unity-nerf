@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Security.Cryptography;
 using NUnit.Framework;
 
 public class NpzFileTests
@@ -20,6 +21,21 @@ public class NpzFileTests
             if (name == "data.npy") continue;
             // if (name == "child.npy") continue;
             var array = reader.ReadArray();
+        }
+    }
+
+    [Test]
+    public static void TestGetData()
+    {
+        using NpzFile npz = NpzFile.OpenRead(@"Assets/Resources/oct_lego.npz");
+        NpyReader npy = npz.GetArray("data.npy");
+        Half[] data = npy.ReadArray<Half>();
+        Random rnd = new Random();
+        for (int k = 0; k < 10; ++k)
+        {
+            int i = rnd.Next(data.Length);
+            Half value = data[i];
+            UnityEngine.Debug.Log($"data[{i}]: {value}");
         }
     }
 

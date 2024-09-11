@@ -26,7 +26,6 @@ internal readonly struct DType
             '?' => typeof(bool),
             'b' => typeof(sbyte),
             'B' => typeof(byte),
-            // 'u' => typeof(string),
             'U' => typeof(string),
             'h' => typeof(short),
             'H' => typeof(ushort),
@@ -35,7 +34,7 @@ internal readonly struct DType
             'l' => typeof(int),
             'L' => typeof(uint),
             'q' => typeof(long),
-            'e' => typeof(short), // HACK: Should be Half
+            'e' => typeof(Half), // typeof(short),
             'Q' => typeof(ulong),
             'f' => typeof(float),
             'd' => typeof(double),
