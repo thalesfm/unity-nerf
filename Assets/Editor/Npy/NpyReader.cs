@@ -11,6 +11,10 @@ using System.Text;
 // using NET_7_0_CompatExtensions;
 // #endif
 
+#if !NET8_0_OR_GREATER
+using BinaryPrimitives = Compat.System.Buffers.Binary.BinaryPrimitives;
+#endif
+
 // TODO: Implement IDisposable
 public class NpyReader // : IDisposable
 {
@@ -24,14 +28,14 @@ public class NpyReader // : IDisposable
         this.reader = reader;
     }
 
-    private static NpyVersion ReadMagic(BinaryReader reader)
+    private static Version ReadMagic(BinaryReader reader)
     {
         byte[] magic = reader.ReadBytes(MagicLength);
         if (magic.Length == MagicLength && magic.AsSpan(0, 6).SequenceEqual(MagicPrefix))
         {
             byte major = magic[MagicPrefix.Count() + 0];
             byte minor = magic[MagicPrefix.Count() + 1];
-            return new NpyVersion(major, minor);
+            return new Version(major, minor);
         }
         else
         {
@@ -40,7 +44,21 @@ public class NpyReader // : IDisposable
         }
     }
 
-    private static NpyHeader ReadArrayHeader(BinaryReader reader, NpyVersion version)
+    private static bool ShouldReverseEndianness(NpyHeader header)
+    {
+        string typestr = DescrToTypestr(header.Descr);
+        char byteOrder = typestr[0];
+
+        return byteOrder switch
+        {
+            '<' => BitConverter.IsLittleEndian,
+            '>' => !BitConverter.IsLittleEndian,
+            '|' => false,
+            _   => throw new Exception(),
+        };
+    }
+
+    private static NpyHeader ReadArrayHeader(BinaryReader reader, Version version)
     {
         int headerLength = version switch
         {
@@ -54,36 +72,94 @@ public class NpyReader // : IDisposable
         return NpyHeader.Parse(headerStr);
     }
 
+    private static string DescrToTypestr(string descr)
+    {
+        DType dtype = new DType(descr);
+        return dtype.Str;
+    }
+
     private static Array ReadArrayData(BinaryReader reader, NpyHeader header)
+    {
+        string typestr = DescrToTypestr(header.Descr);
+        int length = header.Shape.Aggregate(1, (acc, x) => acc * x);
+        reader = typestr[0] switch
+        {
+            '<' => reader,
+            '>' => new BinaryReaderBigEndian(reader.BaseStream),
+            '|' => reader,
+            _   => throw new Exception(),
+        };
+        
+        switch (typestr[1..])
+        {
+            case "b1":
+                return reader.ReadBooleanArray(length);
+            case "i1":
+                return reader.ReadSByteArray(length);
+            case "i2":
+                return reader.ReadInt16Array(length);
+            case "i4":
+                return reader.ReadInt32Array(length);
+            case "i8":
+                return reader.ReadInt64Array(length);
+            case "S1":
+            case "u1":
+                return reader.ReadBytes(length);
+            case "u2":
+                return reader.ReadUInt16Array(length);
+            case "u4":
+                return reader.ReadUInt32Array(length);
+            case "u8":
+                return reader.ReadUInt64Array(length);
+            case "f2":
+                return reader.ReadHalfArray(length);
+            case "f4":
+                return reader.ReadSingleArray(length);
+            case "f8":
+                return reader.ReadDoubleArray(length);
+            case "f16":
+                throw new NotSupportedException();
+            // Complex
+            case var s when s.StartsWith("c"):
+                throw new NotSupportedException();
+            // Timedelta
+            case var s when s.StartsWith("m"):
+                throw new NotSupportedException();
+            // Datetime
+            case var s when s.StartsWith("M"):
+                throw new NotSupportedException();
+            // Object
+            case var s when s.StartsWith("O"):
+                throw new NotSupportedException();
+            // Zero-terminated byte string
+            case var s when s.StartsWith("S"):
+                throw new NotSupportedException();
+            // Unicode string
+            case var s when s.StartsWith("U"):
+                return ReadStringArray(reader, header);
+            // Void
+            case var s when s.StartsWith("V"):
+                throw new NotSupportedException();
+            default:
+                throw new ArgumentException();
+        };
+    }
+
+    private static string[] ReadStringArray(BinaryReader reader, NpyHeader header)
     {
         DType dtype = new DType(header.Descr);
         int length = header.Shape.Aggregate(1, (acc, x) => acc * x);
         byte[] data = reader.ReadBytes(dtype.ItemSize * length);
 
-        if (dtype.Char == 'U')
-        {
-            string[] array = new string[length];
+        // TODO: Reverse endianness if necessary
 
-            for (int i = 0; i < length; ++i)
-            {
-                ReadOnlySpan<byte> bytes = data.AsSpan(i * dtype.ItemSize, dtype.ItemSize);
-                array[i] = Encoding.UTF32.GetString(bytes);
-            }
-            return array;
-        }
-        else if (dtype.Char == 'e')
+        string[] array = new string[length];
+        for (int i = 0; i < length; ++i)
         {
-            ushort[] array = new ushort[length];
-            Buffer.BlockCopy(data, 0, array, 0, data.Length);
-            // return array;
-            return array.Select(BitConverterCompat.UInt16BitsToHalf).ToArray();
+            ReadOnlySpan<byte> bytes = data.AsSpan(i * dtype.ItemSize, dtype.ItemSize);
+            array[i] = Encoding.UTF32.GetString(bytes);
         }
-        else
-        {
-            Array array = Array.CreateInstance(dtype.Type, length);
-            Buffer.BlockCopy(data, 0, array, 0, data.Length);
-            return array;
-        }
+        return array;
     }
 
     public NDArray<T> Read<T>()
@@ -93,7 +169,7 @@ public class NpyReader // : IDisposable
 
     public Array ReadArray()
     {
-        NpyVersion version = ReadMagic(reader);
+        Version version = ReadMagic(reader);
         NpyHeader header = ReadArrayHeader(reader, version);
         UnityEngine.Debug.Log($"NpyReader.ReadArray: reading array w/ header {header}");
         return ReadArrayData(reader, header);
@@ -102,5 +178,17 @@ public class NpyReader // : IDisposable
     public T[] ReadArray<T>()
     {
         return (T[])ReadArray();
+    }
+
+    public readonly struct Version
+    {
+        public readonly int Major;
+        public readonly int Minor;
+
+        public Version(int major, int minor)
+        {
+            Major = major;
+            Minor = minor;
+        }
     }
 }
