@@ -28,6 +28,24 @@ public class NpyReader // : IDisposable
         this.reader = reader;
     }
 
+    public NDArray<T> Read<T>()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Array ReadArray()
+    {
+        Version version = ReadMagic(reader);
+        NpyHeader header = ReadArrayHeader(reader, version);
+        UnityEngine.Debug.Log($"NpyReader.ReadArray: reading array w/ header {header}");
+        return ReadArrayData(reader, header);
+    }
+
+    public T[] ReadArray<T>()
+    {
+        return (T[])ReadArray();
+    }
+
     private static Version ReadMagic(BinaryReader reader)
     {
         byte[] magic = reader.ReadBytes(MagicLength);
@@ -39,30 +57,15 @@ public class NpyReader // : IDisposable
         }
         else
         {
-            // TODO: Improve error message
             throw new IOException("Failed parse NPY file");
         }
-    }
-
-    private static bool ShouldReverseEndianness(NpyHeader header)
-    {
-        string typestr = DescrToTypestr(header.Descr);
-        char byteOrder = typestr[0];
-
-        return byteOrder switch
-        {
-            '<' => BitConverter.IsLittleEndian,
-            '>' => !BitConverter.IsLittleEndian,
-            '|' => false,
-            _   => throw new Exception(),
-        };
     }
 
     private static NpyHeader ReadArrayHeader(BinaryReader reader, Version version)
     {
         int headerLength = version switch
         {
-            { Major: 1, Minor: 0 } => reader.ReadUInt16(), // Little-endian
+            { Major: 1, Minor: 0 } => reader.ReadUInt16(),
             { Major: 2, Minor: 0 } => checked((int)reader.ReadUInt32()),
             _ => throw new IOException("Failed to parse NPY file: unsupported version number"),
         };
@@ -145,13 +148,12 @@ public class NpyReader // : IDisposable
         };
     }
 
+    // FIXME: Reverse endianness if necessary
     private static string[] ReadStringArray(BinaryReader reader, NpyHeader header)
     {
         DType dtype = new DType(header.Descr);
         int length = header.Shape.Aggregate(1, (acc, x) => acc * x);
         byte[] data = reader.ReadBytes(dtype.ItemSize * length);
-
-        // TODO: Reverse endianness if necessary
 
         string[] array = new string[length];
         for (int i = 0; i < length; ++i)
@@ -160,24 +162,6 @@ public class NpyReader // : IDisposable
             array[i] = Encoding.UTF32.GetString(bytes);
         }
         return array;
-    }
-
-    public NDArray<T> Read<T>()
-    {
-        throw new NotImplementedException();
-    }
-
-    public Array ReadArray()
-    {
-        Version version = ReadMagic(reader);
-        NpyHeader header = ReadArrayHeader(reader, version);
-        UnityEngine.Debug.Log($"NpyReader.ReadArray: reading array w/ header {header}");
-        return ReadArrayData(reader, header);
-    }
-
-    public T[] ReadArray<T>()
-    {
-        return (T[])ReadArray();
     }
 
     public readonly struct Version

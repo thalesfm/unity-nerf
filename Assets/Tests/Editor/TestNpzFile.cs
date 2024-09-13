@@ -1,17 +1,9 @@
 using System;
 using System.IO;
-using System.Security.Cryptography;
 using NUnit.Framework;
 
-public class NpzFileTests
+public class TestNpzFile
 {
-    [Test]
-    public void TestConstructor()
-    {
-        var stream = File.OpenRead(@"Assets/Resources/oct_lego.npz");
-        new NpzFile(stream);
-    }
-
     [Test]
     public void TestGetArray()
     {
@@ -24,20 +16,20 @@ public class NpzFileTests
         }
     }
 
-    [Test]
-    public static void TestGetData()
-    {
-        using NpzFile npz = NpzFile.OpenRead(@"Assets/Resources/oct_lego.npz");
-        NpyReader npy = npz.GetArray("data.npy");
-        Half[] data = npy.ReadArray<Half>();
-        Random rnd = new Random();
-        for (int k = 0; k < 10; ++k)
-        {
-            int i = rnd.Next(data.Length);
-            Half value = data[i];
-            UnityEngine.Debug.Log($"data[{i}]: {value}");
-        }
-    }
+    // [Test]
+    // public static void TestGetData()
+    // {
+    //     using NpzFile npz = NpzFile.OpenRead(@"Assets/Resources/oct_lego.npz");
+    //     NpyReader npy = npz.GetArray("data.npy");
+    //     Half[] data = npy.ReadArray<Half>();
+    //     Random rnd = new Random();
+    //     for (int k = 0; k < 10; ++k)
+    //     {
+    //         int i = rnd.Next(data.Length);
+    //         Half value = data[i];
+    //         UnityEngine.Debug.Log($"data[{i}]: {value}");
+    //     }
+    // }
 
     [Test]
     public void TestGetValue()

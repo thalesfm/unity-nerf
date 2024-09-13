@@ -71,7 +71,7 @@ internal readonly struct DType
     }
 
     private static readonly Parser<string> TypeStr =
-        from byteorder in Parse.Chars("><=").Optional().Select(o => o.GetOrElse('='))
+        from byteorder in Parse.Chars("><|").Optional().Select(o => o.GetOrElse('='))
         from typekind in Parse.Chars("?bBiufcmMOSaUV") // 'biufcmMOSUV'
         from itemsize in Parse.Digit.Many().Text() // Select(s => int.Parse(s.ToString()))
         select $"{byteorder}{typekind}{itemsize}";

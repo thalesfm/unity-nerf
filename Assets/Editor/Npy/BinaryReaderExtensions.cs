@@ -8,9 +8,15 @@ public static class BinaryReaderExtensions
 {
     private delegate object ReadFunc(BinaryReader reader);
 
-    public static bool[] ReadBooleanArray(this BinaryReader reader, int count)
+    public static void Read(Span<bool> buffer)
     {
         throw new NotImplementedException();
+    }
+
+    public static bool[] ReadBooleanArray(this BinaryReader reader, int count)
+    {
+        static object read(BinaryReader reader) => reader.ReadBoolean();
+        return ReadArray<bool>(reader, count, read);
     }
 
     public static double[] ReadDoubleArray(this BinaryReader reader, int count)
@@ -22,7 +28,7 @@ public static class BinaryReaderExtensions
     public static Half[] ReadHalfArray(this BinaryReader reader, int count)
     {
         ushort[] array = reader.ReadUInt16Array(count);
-        return array.Select(BitConverterCompat.UInt16BitsToHalf).ToArray();
+        return array.Select(value => new Half(value)).ToArray();
     }
 
     public static short[] ReadInt16Array(this BinaryReader reader, int count)
