@@ -18,7 +18,11 @@ internal class BinaryReaderBigEndian : BinaryReader, IDisposable
     public override decimal ReadDecimal() => throw new NotImplementedException();
 
     [MethodImpl(AggressiveInlining)]
-    public override double ReadDouble() => throw new NotImplementedException();
+    public override double ReadDouble()
+    {
+        long value = BinaryPrimitives.ReverseEndianness(base.ReadInt64());
+        return BitConverter.Int64BitsToDouble(value);
+    }
 
     // public override Half ReadHalf() => throw new NotImplementedException();
 
@@ -31,9 +35,12 @@ internal class BinaryReaderBigEndian : BinaryReader, IDisposable
     [MethodImpl(AggressiveInlining)]
     public override long ReadInt64() => BinaryPrimitives.ReverseEndianness(base.ReadInt64());
 
-    // TODO
     [MethodImpl(AggressiveInlining)]
-    public override float ReadSingle() => throw new NotImplementedException();
+    public override float ReadSingle()
+    {
+        int value = BinaryPrimitives.ReverseEndianness(base.ReadInt32());
+        return BitConverter.Int32BitsToSingle(value);
+    }
 
     // TODO
     [MethodImpl(AggressiveInlining)]
