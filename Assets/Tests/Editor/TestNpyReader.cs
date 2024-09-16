@@ -7,9 +7,7 @@ using NUnit.Framework;
 
 public class TestNpyReader
 {
-    // [TestCase(@"Assets/Tests/Editor/Data/arange_b1.npy", typeof(Half))]
-    [TestCase(@"Assets/Tests/Editor/Data/arange_f2_be.npy", typeof(Half))]
-    [TestCase(@"Assets/Tests/Editor/Data/arange_f2_le.npy", typeof(Half))]
+    // [TestCase(@"Assets/Tests/Editor/Data/arange_b1.npy", typeof(bool))]
     [TestCase(@"Assets/Tests/Editor/Data/arange_f4_be.npy", typeof(float))]
     [TestCase(@"Assets/Tests/Editor/Data/arange_f4_le.npy", typeof(float))]
     [TestCase(@"Assets/Tests/Editor/Data/arange_f8_be.npy", typeof(double))]
@@ -30,6 +28,11 @@ public class TestNpyReader
     [TestCase(@"Assets/Tests/Editor/Data/arange_u8_le.npy", typeof(ulong))]
     public static void ReadArray_Arange(string path, Type type)
     {
+        // typeof(TestNpyReader)
+        //     .GetMethod(nameof(ReadArray_ArangeGeneric))
+        //     .MakeGenericMethod(type)
+        //     .Invoke(null, new object[] { path });
+
         using Stream stream = File.OpenRead(path);
         BinaryReader reader = new(stream);
         NpyReader npyReader = new(reader);
@@ -39,6 +42,23 @@ public class TestNpyReader
         for (int i = 0; i < arr.Length; i++)
         {
             Assert.That(arr.GetValue(i), Is.EqualTo(i));
+        }
+    }
+
+    [TestCase(@"Assets/Tests/Editor/Data/arange_f2_be.npy")]
+    [TestCase(@"Assets/Tests/Editor/Data/arange_f2_le.npy")]
+    public static void ReadArray_ArangeOfHalf(string path)
+    {
+        using Stream stream = File.OpenRead(path);
+        BinaryReader reader = new(stream);
+        NpyReader npyReader = new(reader);
+        Array arr = npyReader.ReadArray();
+
+        Assert.That(arr.Length, Is.GreaterThan(0));
+        for (int i = 0; i < arr.Length; i++)
+        {
+            Half expected = (Half)i;
+            Assert.That(arr.GetValue(i), Is.EqualTo(expected));
         }
     }
 
