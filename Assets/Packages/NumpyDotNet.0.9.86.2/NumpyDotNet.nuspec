@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>NumpyDotNet</id>
+    <version>0.9.86.2</version>
+    <authors>Kevin McKenna</authors>
+    <owners>Baseline Software Solutions, Inc.</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/Quansight-Labs/numpy.net/blob/master/LICENSE.txt</licenseUrl>
+    <projectUrl>https://github.com/Quansight-Labs/numpy.net</projectUrl>
+    <iconUrl>https://github.com/Quansight-Labs/numpy.net/blob/master/Database.png</iconUrl>
+    <description>This library provides a 100% pure .NET implementation of the NumPy API.  Multi-threaded, fast and accurate.</description>
+    <releaseNotes>fix customer reported bug in np.convolve</releaseNotes>
+    <copyright>Copyright 2024, Baseline Software Solutions, Inc.</copyright>
+    <tags>NumPy, .NET, C#, Financial, Machine Learning</tags>
+    <dependencies>
+      <dependency id="Microsoft.CSharp" version="4.5.0" />
+      <dependency id="NETStandard.Library" version="2.0.3" />
+      <dependency id="System.Dynamic.Runtime" version="4.3.0" />
+    </dependencies>
+  </metadata>
+</package>

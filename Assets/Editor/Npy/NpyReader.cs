@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
+using NumpyDotNet;
 
 // #if !NET5_0_OR_GREATER
 // using Half = HalfCompat;
@@ -28,23 +29,26 @@ public class NpyReader // : IDisposable
         this.reader = reader;
     }
 
-    public NDArray<T> Read<T>()
-    {
-        throw new NotImplementedException();
-    }
-
-    public Array ReadArray()
+    public ndarray Read()
     {
         Version version = ReadMagic(reader);
         NpyHeader header = ReadArrayHeader(reader, version);
-        UnityEngine.Debug.Log($"NpyReader.ReadArray: reading array w/ header {header}");
-        return ReadArrayData(reader, header);
+        Array data = ReadArrayData(reader, header);
+        // NumpyLib.NPY_ORDER order = header.FortranOrder ? NumpyLib.NPY_ORDER.NPY_FORTRANORDER : NumpyLib.NPY_ORDER.NPY_CORDER;
+        if (header.FortranOrder)
+        {
+            int[] newshape = header.Shape.Reverse().ToArray();
+            return np.asarray(data).reshape(newshape).T;
+        }
+        else
+        {
+            return np.asarray(data).reshape(header.Shape);
+        }
     }
 
-    public T[] ReadArray<T>()
-    {
-        return (T[])ReadArray();
-    }
+    public Array ReadArray() => Read().ToArray();
+
+    public T[] ReadArray<T>() => (T[])ReadArray();
 
     private static Version ReadMagic(BinaryReader reader)
     {
