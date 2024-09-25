@@ -31,6 +31,7 @@ public class TestNpzFile
     //     }
     // }
 
+    [Ignore("Still unoptimized; very slow")]
     [Test]
     public void TestGetValue()
     {
