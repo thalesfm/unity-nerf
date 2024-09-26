@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 // using NumpyDotNet;
 using NumSharp;
@@ -207,37 +208,31 @@ public class NpyReader // : IDisposable
             (byteorder == '>' &&  BitConverter.IsLittleEndian))
             throw new NotSupportedException();
         
-        if (dtype == typeof(bool))
-            return reader.ReadBooleanArray(length);
-        if (dtype == typeof(sbyte))
-            return reader.ReadSByteArray(length);
-        if (dtype == typeof(short))
-            return reader.ReadInt16Array(length);
-        if (dtype == typeof(int))
-            return reader.ReadInt32Array(length);
-        if (dtype == typeof(long))
-            return reader.ReadInt64Array(length);
-        if (dtype == typeof(byte))
-            return reader.ReadBytes(length);
-        if (dtype == typeof(ushort))
-            return reader.ReadUInt16Array(length);
-        if (dtype == typeof(uint))
-            return reader.ReadUInt32Array(length);
-        if (dtype == typeof(ulong))
-            return reader.ReadUInt64Array(length);
+        if (dtype.IsPrimitive)
+            return ReadArrayOfPrimitive(reader, dtype, size, length);
         if (dtype == typeof(Half))
-            return reader.ReadHalfArray(length);
-        if (dtype == typeof(float))
-            return reader.ReadSingleArray(length);
-        if (dtype == typeof(double))
-            return reader.ReadDoubleArray(length);
+            return ReadArrayOfHalf(reader, length);
         if (dtype == typeof(string))
-            return ReadStringArrayData(reader, size, length);
+            return ReadArrayOfString(reader, size, length);
         
         throw new NotSupportedException();
     }
 
-    private static string[] ReadStringArrayData(BinaryReader reader, int size, int length)
+    private static Half[] ReadArrayOfHalf(BinaryReader reader, int length)
+    {
+        ushort[] buffer = (ushort[])ReadArrayOfPrimitive(reader, typeof(ushort), sizeof(ushort), length);
+        return buffer.Select(value => new Half(value)).ToArray();
+    }
+
+    private static Array ReadArrayOfPrimitive(BinaryReader reader, Type type, int size, int length)
+    {
+        byte[] buffer = reader.ReadBytes(size * length);
+        Array array = Array.CreateInstance(type, length);
+        Buffer.BlockCopy(buffer, 0, array, 0, size * length);
+        return array;
+    }
+
+    private static string[] ReadArrayOfString(BinaryReader reader, int size, int length)
     {
         byte[] data = reader.ReadBytes(size * length);
         string[] array = new string[length];

@@ -10,7 +10,7 @@ public class TestNpzFile
         NpzFile npz = NpzFile.OpenRead(@"Assets/Resources/oct_lego.npz");
         foreach ((var name, var reader) in npz.Arrays())
         {
-            if (name == "data.npy") continue;
+            // if (name == "data.npy") continue;
             // if (name == "child.npy") continue;
             var array = reader.ReadArray();
         }
@@ -31,7 +31,7 @@ public class TestNpzFile
     //     }
     // }
 
-    [Ignore("Still unoptimized; very slow")]
+    // [Ignore("Still unoptimized; very slow")]
     [Test]
     public void TestGetValue()
     {
