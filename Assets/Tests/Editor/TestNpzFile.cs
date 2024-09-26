@@ -1,13 +1,15 @@
-using System;
-using System.IO;
 using NUnit.Framework;
+using UnityNeRF.Editor.IO;
+
+namespace UnityNeRF.Editor.Tests
+{
 
 public class TestNpzFile
 {
     [Test]
     public void TestGetArray()
     {
-        NpzFile npz = NpzFile.OpenRead(@"Assets/Resources/oct_lego.npz");
+        using NpzFile npz = NpzFile.OpenRead(@"Assets/Resources/oct_lego.npz");
         foreach ((var name, var reader) in npz.Arrays())
         {
             // if (name == "data.npy") continue;
@@ -35,7 +37,7 @@ public class TestNpzFile
     [Test]
     public void TestGetValue()
     {
-        NpzFile npz = NpzFile.OpenRead(@"Assets/Resources/oct_lego.npz");
+        using NpzFile npz = NpzFile.OpenRead(@"Assets/Resources/oct_lego.npz");
         NpyReader npy = npz.GetArray("data_dim.npy");
         long[] dataDim = npy.ReadArray<long>();
         UnityEngine.Debug.Log($"data_dim: {dataDim[0]}");
@@ -44,3 +46,5 @@ public class TestNpzFile
         UnityEngine.Debug.Log($"data_format: {dataFormat[0]}");
     }
 }
+
+} // namespace UnityNeRF.Editor.Tests

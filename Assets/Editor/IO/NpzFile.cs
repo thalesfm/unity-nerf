@@ -1,17 +1,23 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 
-public class NpzFile : IDisposable // , IReadOnlyDictionary<string, NpyReader>
+namespace UnityNeRF.Editor.IO
+{
+
+public sealed class NpzFile : IDisposable
 {
     private ZipArchive archive;
     
     public NpzFile(Stream stream)
     {
         archive = new ZipArchive(stream);
+    }
+
+    public void Dispose()
+    {
+        archive.Dispose();
     }
 
     public static NpzFile OpenRead(string path)
@@ -35,26 +41,13 @@ public class NpzFile : IDisposable // , IReadOnlyDictionary<string, NpyReader>
         if (entry != null)
         {
             Stream stream = entry.Open();
-            BinaryReader reader = new BinaryReader(stream);
-            return new NpyReader(reader);
+            return new NpyReader(stream);
         }
         else
         {
             return null;
         }
     }
-
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            if (archive != null) archive.Dispose();
-        }
-    }
 }
+
+} // namespace UnityNeRF.Editor.IO

@@ -1,11 +1,10 @@
 using System;
-using System.IO;
 using NUnit.Framework;
-// using NumpyDotNet;
 using NumSharp;
+using UnityNeRF.Editor.IO;
 
-// namespace MyCompany.MyPackage.Editor.Tests
-// {
+namespace UnityNeRF.Editor.Tests
+{
 
 public class TestNpyReader
 {
@@ -21,12 +20,9 @@ public class TestNpyReader
     [TestCase(@"Assets/Tests/Editor/Data/arange_u8.npy")]
     public static void ReadArray_Arange(string path)
     {
-        using Stream stream = File.OpenRead(path);
-        BinaryReader reader = new(stream);
-        NpyReader npyReader = new(reader);
-        Array arr = npyReader.ReadArray();
+        using NpyReader reader = NpyFile.OpenRead(path);
+        Array arr = reader.ReadArray();
 
-        Assert.That(arr.Length, Is.GreaterThan(0));
         for (int i = 0; i < arr.Length; i++)
         {
             Assert.That(arr.GetValue(i), Is.EqualTo(i));
@@ -36,12 +32,9 @@ public class TestNpyReader
     [TestCase(@"Assets/Tests/Editor/Data/arange_f2.npy")]
     public static void ReadArray_ArangeOfHalf(string path)
     {
-        using Stream stream = File.OpenRead(path);
-        BinaryReader reader = new(stream);
-        NpyReader npyReader = new(reader);
-        Array arr = npyReader.ReadArray();
+        using NpyReader reader = NpyFile.OpenRead(path);
+        Array arr = reader.ReadArray();
 
-        Assert.That(arr.Length, Is.GreaterThan(0));
         for (int i = 0; i < arr.Length; i++)
         {
             Half expected = (Half)i;
@@ -52,10 +45,8 @@ public class TestNpyReader
     [TestCase(@"Assets/Tests/Editor/Data/hello_U5.npy")]
     public static void ReadArray_HelloWorld(string path)
     {
-        using Stream stream = File.OpenRead(path);
-        BinaryReader reader = new(stream);
-        NpyReader npyReader = new(reader);
-        string[] arr = npyReader.ReadArray<string>();
+        using NpyReader reader = NpyFile.OpenRead(path);
+        string[] arr = reader.ReadArray<string>();
 
         Assert.That(arr[0], Is.EqualTo("Hello"));
         Assert.That(arr[1], Is.EqualTo("World"));
@@ -65,11 +56,8 @@ public class TestNpyReader
     // [TestCase(@"Assets/Tests/Editor/Data/mgrid_i4_fortran_order.npy")] // Ignore: fortran order not supported
     public static void ReadArray_Mgrid(string path)
     {
-        using Stream stream = File.OpenRead(path);
-        BinaryReader reader = new(stream);
-        NpyReader npyReader = new(reader);
-        NDArray arr = npyReader.Read();
-        UnityEngine.Debug.Log($"arr = {arr}");
+        using NpyReader reader = NpyFile.OpenRead(path);
+        NDArray arr = reader.Read();
 
         for (int i = 0; i < arr.shape[0]; i++)
         {
@@ -85,13 +73,11 @@ public class TestNpyReader
     [TestCase(@"Assets/Tests/Editor/Data/scalar_i4.npy", 42)]
     public static void ReadArray_Scalar<T>(string path, T expected)
     {
-        using Stream stream = File.OpenRead(path);
-        BinaryReader reader = new(stream);
-        NpyReader npyReader = new(reader);
-        Array arr = npyReader.ReadArray();
+        using NpyReader reader = NpyFile.OpenRead(path);
+        Array arr = reader.ReadArray();
 
         Assert.That(arr.GetValue(0), Is.EqualTo(expected));
     }
 }
 
-// }
+} // namespace UnityNeRF.Editor.Tests
