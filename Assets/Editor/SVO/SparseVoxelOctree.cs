@@ -6,7 +6,7 @@ using UnityEngine;
 using NumSharp;
 using System.Linq;
 
-namespace SVO {
+namespace UnityNeRF {
 
 public class SparseVoxelOctree<T>
 {

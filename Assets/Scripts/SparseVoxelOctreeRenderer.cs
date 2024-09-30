@@ -4,7 +4,7 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.SceneManagement;
-using SVO;
+using UnityNeRF;
 
 [ExecuteAlways]
 [RequireComponent(typeof(MeshRenderer))]

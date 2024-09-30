@@ -1,12 +1,13 @@
 using System;
 using System.Linq;
+using System.Diagnostics.CodeAnalysis;
 using NumSharp;
 
-#pragma warning disable IDE1006 // Naming Styles
+// #pragma warning disable IDE1006 // Naming Styles
 
 namespace UnityNeRF
 {
-    internal readonly struct DataFormat
+    public readonly struct DataFormat
     {
         public const int RGBA = 0;
         public const int SH   = 1;
@@ -16,6 +17,7 @@ namespace UnityNeRF
         public readonly int format;
         public readonly int basis_dim;
 
+        [SuppressMessage("Style", "IDE1006:Naming Styles")]
         public int data_dim => 3 * basis_dim + 1;
 
         public DataFormat(int format, int basis_dim)
