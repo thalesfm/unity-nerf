@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using NumSharp;
 using NumSharp.Generic;
 using UnityEngine;
@@ -79,6 +80,12 @@ namespace UnityNeRF
             
             return tree;
         }
+
+        // [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public NDArray this[float x, float y, float z] => Sample(x, y, z);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public NDArray Sample(float x, float y, float z) => Sample(new Vector3(x, y, z));
 
         public NDArray Sample(Vector3 coord)
         {

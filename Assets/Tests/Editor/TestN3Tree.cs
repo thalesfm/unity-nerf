@@ -1,48 +1,31 @@
 using System;
 using NUnit.Framework;
-using NumSharp;
-using UnityEngine;
 
 namespace UnityNeRF.Editor.Tests
 {
     public class TestN3Tree
     {
-        [TestCase(@"Assets/Resources/oct_lego.npz", Ignore = "Slow")]
-        public static void Load_NoThrow(string path)
+        [TestCase(@"Assets/Tests/Editor/Data/svo_mgrid_16.npz")]
+        public static void Load_Mgrid(string path)
         {
             N3Tree tree = N3Tree.Load(path);
-        }
+            int width = (int) Math.Pow(2.0, tree.depth_limit + 1.0);
 
-        [TestCase(@"Assets/Resources/oct_lego.npz", Ignore = "Slow")]
-        public static void ToSparseVoxelOctree_NoThrow(string path)
-        {
-            UnityEngine.Debug.Log($"Loading plenoctree...");
-            N3Tree tree = N3Tree.Load(path);
-            UnityEngine.Debug.Log($"Converting to octree...");
-            SparseVoxelOctree<float[]> octree = tree.ToSparseVoxelOctree();
-        }
-
-        [TestCase(@"Assets/Resources/oct_lego.npz")] // , Explicit = true, Ignore = "Slow")]
-        public static void ToSparseVoxelOctree_Equal(string path, int samples = 20)
-        {
-            N3Tree tree = N3Tree.Load(path);
-            SparseVoxelOctree<float[]> octree = tree.ToSparseVoxelOctree();
-            System.Random random = new System.Random();
-
-            for (int k = 0; k < samples; ++k)
+            for (int i = 0; i < width; ++i)
             {
-                float x = (float) random.NextDouble();
-                float y = (float) random.NextDouble();
-                float z = (float) random.NextDouble();
-                NDArray expected = tree.Sample(new Vector3(x, y, z));
+                for (int j = 0; j < width; ++j)
+                {
+                    for (int k = 0; k < width; ++k)
+                    {
+                        float x = (i + 0.5f) / width;
+                        float y = (j + 0.5f) / width;
+                        float z = (k + 0.5f) / width;
 
-                int xx = (int) x * octree.Width;
-                int yy = (int) y * octree.Height;
-                int zz = (int) z * octree.Depth;
-                float[] coeffs = octree[xx, yy, zz];
-
-                for (int i = 0; i < tree.data_dim; ++i)
-                    Assert.That(coeffs[i], Is.EqualTo(expected.GetSingle(i)));
+                        Assert.That(tree[x, y, z].GetSingle(0), Is.EqualTo((float) i));
+                        Assert.That(tree[x, y, z].GetSingle(1), Is.EqualTo((float) j));
+                        Assert.That(tree[x, y, z].GetSingle(2), Is.EqualTo((float) k));
+                    }
+                }
             }
         }
     }

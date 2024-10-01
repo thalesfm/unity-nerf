@@ -15,8 +15,19 @@ public class SparseVoxelOctree<T>
     public readonly int Depth;
     public readonly int MaxLevel;
 
-    private List<int> _nodeChildren;
-    private List<T> _nodeData;
+    internal List<int> _nodeChildren;
+    internal List<T> _nodeData;
+
+    public SparseVoxelOctree(int maxLevel)
+    {
+        Width = Height = Depth = (int) Math.Pow(2.0, maxLevel + 1);
+        MaxLevel = maxLevel;
+
+        _nodeChildren = new List<int>();
+        _nodeData = new List<T>();
+
+        Clear();
+    }
 
     public SparseVoxelOctree(int width, int height, int depth)
     {
@@ -110,7 +121,14 @@ public class SparseVoxelOctree<T>
         return _nodeData;
     }
 
-    private int AddNode()
+    // public T Sample(float x, float y, float z)
+    // {
+    //     int i = (int)(x * Width;
+    //     int j = y * Height;
+    //     int k = z * Depth;
+    // }
+
+    internal int AddNode()
     {
         int nodeIndex = _nodeData.Count;
 
@@ -129,6 +147,8 @@ public class SparseVoxelOctree<T>
 
     private int GetNodeIndex(int x, int y, int z, int level = 0, bool refine = false)
     {
+        // Debug.Log($"GetNodeIndex({x}, {y}, {z})");
+
         if (level > MaxLevel) {
             throw new IndexOutOfRangeException();
         }
@@ -140,6 +160,7 @@ public class SparseVoxelOctree<T>
         int nodeIndex = 0;
 
         for (int k = MaxLevel - 1; k >= level; --k) {
+            // UnityEngine.Debug.Log($"GetNodeIndex(...): nodeIndex = {nodeIndex}");
             bool qx = (x & (1 << k)) != 0;
             bool qy = (y & (1 << k)) != 0;
             bool qz = (z & (1 << k)) != 0;

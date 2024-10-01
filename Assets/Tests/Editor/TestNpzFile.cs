@@ -7,7 +7,7 @@ namespace UnityNeRF.Editor.Tests
 {
     public class TestNpzFile
     {
-        [TestCase(@"Assets/Resources/oct_lego.npz")]
+        [TestCase(@"Assets/Tests/Editor/Data/svo_mgrid_16.npz")]
         public static void OpenRead_NoThrow(string path)
         {
             using NpzFile npz = NpzFile.OpenRead(path);
