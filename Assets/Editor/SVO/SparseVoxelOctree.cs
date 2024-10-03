@@ -164,9 +164,9 @@ public class SparseVoxelOctree<T>
             bool qz = (z & (1 << k)) != 0;
 
             int octant = 0;
-            octant += qx ? 0 : 1;
-            octant += qy ? 0 : 2;
-            octant += qz ? 0 : 4;
+            octant += qx ? 1 : 0;
+            octant += qy ? 2 : 0;
+            octant += qz ? 4 : 0;
 
             int childIndex = _nodeChildren[8 * nodeIndex + octant];
             if (childIndex == -1) {

@@ -21,9 +21,9 @@ int SVOGetNodeIndex(SparseVoxelOctree svo, int x, int y, int z, int level = 0)
         bool qz = (z & (1 << k)) != 0;
 
         int quadrant = 0;
-        quadrant += qx ? 0 : 1;
-        quadrant += qy ? 0 : 2;
-        quadrant += qz ? 0 : 4;
+        quadrant += qx ? 1 : 0;
+        quadrant += qy ? 2 : 0;
+        quadrant += qz ? 4 : 0;
 
         int childIndex = svo.nodeChildren[8 * nodeIndex + quadrant];
         if (childIndex == -1) {
