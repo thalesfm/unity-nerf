@@ -16,8 +16,8 @@ namespace UnityNeRF
             if (tree.N != 2)
                 throw new NotSupportedException();
             
-            if (maxLevel > tree.depth_limit)
-                maxLevel = tree.depth_limit;
+            if (maxLevel > tree.depth_limit + 1)
+                maxLevel = tree.depth_limit + 1;
             
             var octree = new SparseVoxelOctree<float[]>(maxLevel);
             int nodeCount = tree.data.shape[0];
@@ -27,19 +27,6 @@ namespace UnityNeRF
                 octree.AddNode();
             
             CopyNodeRecursive(tree, octree);
-            // UnityEngine.Debug.Log($"count = {count}, total = {total}");
-
-            // int total = 0;
-            // for (int i = 0; i < count; ++i)
-            //     if (octree._nodeData[i] == null)
-            //         total += 1;
-            // UnityEngine.Debug.Log($"Number of null entries: {total}");
-
-            // for (int i = 0; i < 8; ++i)
-            // {
-            //     int value = octree._nodeChildren[i];
-            //     UnityEngine.Debug.Log($"child[i] = {value}");
-            // }
 
             return octree;
         }
@@ -55,18 +42,18 @@ namespace UnityNeRF
                 {
                     for (int z = 0; z < 2; ++z)
                     {
+                        int skip = source.child.GetInt32(index, x, y, z);
+                        int childIndex = (skip != 0) ? index + skip : dest.AddNode();
+
                         float[] coeffs = new float[source.data_dim];
                         for (int k = 0; k < source.data_dim; ++k)
                             coeffs[k] = source.data.GetSingle(index, x, y, z, k);
-
-                        int skip = source.child.GetInt32(index, x, y, z);   
-                        dest._nodeData[index + skip] = coeffs;
-
-                        if (skip == 0)
-                            continue;
                         
-                        dest._nodeChildren[8*index + 4*z + 2*y + x] = index + skip;
-                        CopyNodeRecursive(source, dest, index + skip, level + 1);
+                        dest._nodeData[childIndex] = coeffs;
+                        dest._nodeChildren[8*index + 4*z + 2*y + x] = childIndex;
+
+                        if (skip != 0)
+                            CopyNodeRecursive(source, dest, childIndex, level + 1);
                     }
                 }
             }
