@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using NumSharp;
 // using UnityNeRF;
 
 namespace UnityNeRF
@@ -37,25 +38,20 @@ namespace UnityNeRF
                 return;
 
             for (int x = 0; x < 2; ++x)
+            for (int y = 0; y < 2; ++y)
+            for (int z = 0; z < 2; ++z)
             {
-                for (int y = 0; y < 2; ++y)
-                {
-                    for (int z = 0; z < 2; ++z)
-                    {
-                        int skip = source.child.GetInt32(index, x, y, z);
-                        int childIndex = (skip != 0) ? index + skip : dest.AddNode();
+                int skip = source.child.GetInt32(index, x, y, z);
+                int childIndex = (skip != 0) ? index + skip : dest.AddNode();
 
-                        float[] coeffs = new float[source.data_dim];
-                        for (int k = 0; k < source.data_dim; ++k)
-                            coeffs[k] = source.data.GetSingle(index, x, y, z, k);
-                        
-                        dest._nodeData[childIndex] = coeffs;
-                        dest._nodeChildren[8*index + 4*z + 2*y + x] = childIndex;
+                float[] data = new float[source.data_dim];
+                source.data[index, x, y, z, Slice.All].GetData().CopyTo(data.AsSpan());
 
-                        if (skip != 0)
-                            CopyNodeRecursive(source, dest, childIndex, level + 1);
-                    }
-                }
+                dest._nodeChildren[8*index + 4*z + 2*y + x] = childIndex;
+                dest._nodeData[childIndex] = data;
+
+                if (skip != 0)
+                    CopyNodeRecursive(source, dest, childIndex, level + 1);
             }
         }
     }

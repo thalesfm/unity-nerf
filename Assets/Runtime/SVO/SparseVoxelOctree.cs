@@ -4,7 +4,10 @@ using System.Collections.Generic;
 using System.Numerics;
 using UnityEngine;
 using NumSharp;
-using System.Linq;
+using Google.Protobuf;
+using System.IO;
+using System.Runtime.InteropServices;
+// using System.Linq;
 
 namespace UnityNeRF {
 
@@ -15,8 +18,8 @@ public class SparseVoxelOctree<T>
     public readonly int Depth;
     public readonly int MaxLevel;
 
-    internal List<int> _nodeChildren;
-    internal List<T> _nodeData;
+    public List<int> _nodeChildren; // HACK: Ideally should not be public
+    public List<T> _nodeData; // HACK: Ideally should not be public
 
     public SparseVoxelOctree(int maxLevel)
     {
@@ -80,6 +83,38 @@ public class SparseVoxelOctree<T>
         return svo;
     }
 
+    // HACK: Expects octree to contain 49 floats per voxel
+    public static void Save(SparseVoxelOctree<float[]> octree, string path)
+    {
+        using Stream stream = File.OpenWrite(path);
+        float[] nodeData = new float[octree._nodeData.Count * 49];
+
+        for (int i = 0; i < octree._nodeData.Count; ++i)
+        {
+            if (octree._nodeData[i] == null)
+                continue;
+
+            // if (octree._nodeData[i].Length != 49)
+            //     throw new Exception();
+            
+            // octree._nodeData[i].CopyTo(nodeData, 49 * i);
+
+            // HACK: Temporary; intended to allow importing smaller file
+            for (int k = 0; k < octree._nodeData[i].Length; ++k)
+                nodeData[49*i + k] = octree._nodeData[i][k];
+            for (int k = octree._nodeData[i].Length; k < 49; ++k)
+                nodeData[49*i + k] = 0.0f;
+        }
+
+        var message = new SVO.Protobuf.SparseVoxelOctree();
+        message.Width = octree.Width;
+        message.Height = octree.Height;
+        message.Depth = octree.Depth;
+        message.NodeChildren.AddRange(octree._nodeChildren);
+        message.NodeData = ByteString.CopyFrom(MemoryMarshal.Cast<float, byte>(nodeData.AsSpan()));
+        message.WriteTo(stream);
+    }
+
     public T this[int x, int y, int z, int level = 0]
     {
         get {
@@ -128,7 +163,8 @@ public class SparseVoxelOctree<T>
     //     int k = z * Depth;
     // }
 
-    internal int AddNode()
+    // HACK: Ideally should not be public
+    public int AddNode()
     {
         int nodeIndex = _nodeData.Count;
 

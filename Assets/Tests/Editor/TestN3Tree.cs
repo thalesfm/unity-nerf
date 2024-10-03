@@ -5,7 +5,7 @@ namespace UnityNeRF.Editor.Tests
 {
     public class TestN3Tree
     {
-        [TestCase(@"Assets/Tests/Editor/Data/svo_mgrid_16.npz")]
+        [TestCase(@"Assets/Tests/Editor/Data/svo_mgrid_16.zip")]
         public static void Load_Mgrid(string path)
         {
             N3Tree tree = N3Tree.Load(path);
