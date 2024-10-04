@@ -1,2 +1,0 @@
-- Organize project as a Unity package
-- Move sample scenes to a separate sample project in Samples~
