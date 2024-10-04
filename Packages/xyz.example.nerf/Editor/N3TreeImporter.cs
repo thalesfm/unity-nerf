@@ -22,15 +22,17 @@ namespace UnityNeRF.Editor
             
             MeshRenderer meshRenderer = prefab.GetComponent<MeshRenderer>();
             Material material = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>(MaterialPath);
-            material = new Material(material);
-            meshRenderer.material = material;
+            Material materialCopy = new Material(material);
+            meshRenderer.material = materialCopy;
 
             SparseVoxelOctreeRenderer volumeRenderer = prefab.AddComponent<SparseVoxelOctreeRenderer>();
             volumeRenderer._fileName = path;
 
             ctx.AddObjectToAsset("prefab", prefab);
-            ctx.AddObjectToAsset("material", material);
+            ctx.AddObjectToAsset("material", materialCopy);
             ctx.SetMainObject(prefab);
+
+            // DestroyImmediate(material);
         }
     }
 }

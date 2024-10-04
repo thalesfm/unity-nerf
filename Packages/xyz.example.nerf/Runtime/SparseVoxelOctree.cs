@@ -90,8 +90,8 @@ namespace UnityNeRF
                 if (octree._nodeData[i] == null)
                     continue;
 
-                // if (octree._nodeData[i].Length != 49)
-                //     throw new Exception();
+                if (octree._nodeData[i].Length != 49)
+                    throw new Exception();
                 
                 // octree._nodeData[i].CopyTo(nodeData, 49 * i);
 
@@ -103,11 +103,17 @@ namespace UnityNeRF
             }
 
             var message = new Protobuf.SparseVoxelOctree();
+            message.TypeUrl = "type.googleapis.com/google.protobuf.FloatValue";
             message.Width = octree.Width;
             message.Height = octree.Height;
             message.Depth = octree.Depth;
             message.NodeChildren.AddRange(octree._nodeChildren);
-            message.NodeData = ByteString.CopyFrom(MemoryMarshal.Cast<float, byte>(nodeData.AsSpan()));
+
+            // message.NodeData = ByteString.CopyFrom(MemoryMarshal.Cast<float, byte>(nodeData.AsSpan()));
+            byte[] bytes = new byte[sizeof(float) * nodeData.Length];
+            Buffer.BlockCopy(nodeData, 0, bytes, 0, bytes.Length);
+            message.NodeData = ByteString.CopyFrom(bytes);
+
             message.WriteTo(stream);
         }
 
