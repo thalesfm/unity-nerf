@@ -5,8 +5,7 @@
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
         "MyCompany.UnityNeRF",
-        "MyCompany.UnityNeRF.Editor",
-        "MyCompany.UnityNeRF.Runtime"
+        "MyCompany.UnityNeRF.Editor"
     ],
     "includePlatforms": [
         "Editor"
@@ -16,7 +15,6 @@
     "overrideReferences": true,
     "precompiledReferences": [
         "nunit.framework.dll",
-        "NumpyDotNet.dll",
         "NumSharp.dll",
         "Sprache.dll"
     ],

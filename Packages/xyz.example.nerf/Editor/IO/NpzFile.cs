@@ -1,10 +1,7 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.IO;
 using System.IO.Compression;
-using NumSharp;
 
 namespace UnityNeRF.Editor.IO
 {

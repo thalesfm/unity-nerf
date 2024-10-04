@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using NumSharp;
 using Sprache;
+using UnityNeRF;
 
 namespace UnityNeRF.Editor.IO
 {

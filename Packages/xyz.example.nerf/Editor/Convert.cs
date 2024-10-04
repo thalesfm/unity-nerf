@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using NumSharp;
 // using UnityNeRF;
 
-namespace UnityNeRF
+namespace UnityNeRF.Editor
 {
     public static partial class Convert
     {

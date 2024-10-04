@@ -7,7 +7,7 @@ using NumSharp.Generic;
 using UnityEngine;
 using UnityNeRF.Editor.IO;
 
-namespace UnityNeRF
+namespace UnityNeRF.Editor
 {
     public class N3Tree
     {
