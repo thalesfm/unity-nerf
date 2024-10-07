@@ -7,15 +7,15 @@ using System.Runtime.InteropServices;
 
 namespace UnityNeRF
 {
-    public class SparseVoxelOctree<T>
+    public class SparseVoxelOctree<T> // : IEquatable
     {
         public readonly int Width;
         public readonly int Height;
         public readonly int Depth;
         public readonly int MaxLevel;
 
-        public List<int> _nodeChildren; // HACK: Ideally should not be public
-        public List<T> _nodeData; // HACK: Ideally should not be public
+        public List<int> _nodeChildren; // FIXME: Ideally should not be public
+        public List<T> _nodeData;       // FIXME: Ideally should not be public
 
         public SparseVoxelOctree(int maxLevel)
         {
@@ -45,10 +45,16 @@ namespace UnityNeRF
             Clear();
         }
 
-        // HACK: Expects octree to contain 49 floats per voxel
         public static SparseVoxelOctree<float[]> Load(string path)
         {
-            var stream = System.IO.File.OpenRead(path);
+            using var stream = File.OpenRead(path);
+            return Load(stream);
+        }
+
+        // FIXME: Expects octree containining exactly 49 floats per voxel
+        // (Corresponding to the SH16 format for an N3Tree)
+        public static SparseVoxelOctree<float[]> Load(Stream stream)
+        {
             var parser = Protobuf.SparseVoxelOctree.Parser;
             var message = parser.ParseFrom(stream);
             
@@ -61,7 +67,7 @@ namespace UnityNeRF
 
             if (message.NodeData.Length != sizeof(float) * 49 * count) {
                 stream.Close();
-                throw new Exception("AAA");
+                throw new Exception("Expected exactly 49 floats");
             }
 
             var nodeData = message.NodeData.ToByteArray();
@@ -69,7 +75,7 @@ namespace UnityNeRF
                 var coeffs = new float[49];
                 for (int j = 0; j < 49; ++j) {
                     int offset = sizeof(float) * (49 * i + j);
-                    float value = System.BitConverter.ToSingle(nodeData, offset);
+                    float value = BitConverter.ToSingle(nodeData, offset);
                     coeffs[j] = value;
                 }
                 svo._nodeData.Add(coeffs);
@@ -79,10 +85,16 @@ namespace UnityNeRF
             return svo;
         }
 
-        // HACK: Expects octree to contain 49 floats per voxel
         public static void Save(SparseVoxelOctree<float[]> octree, string path)
         {
-            using Stream stream = File.OpenWrite(path);
+            using var stream = File.OpenWrite(path);
+            Save(octree, stream);
+        }
+
+        // FIXME: Expects octree containining exactly 49 floats per voxel
+        // (Corresponding to the SH16 format for an N3Tree)
+        public static void Save(SparseVoxelOctree<float[]> octree, Stream stream)
+        {
             float[] nodeData = new float[octree._nodeData.Count * 49];
 
             for (int i = 0; i < octree._nodeData.Count; ++i)
@@ -91,15 +103,14 @@ namespace UnityNeRF
                     continue;
 
                 if (octree._nodeData[i].Length != 49)
-                    throw new Exception();
+                    throw new Exception("Expected exactly 49 floats");
                 
-                // octree._nodeData[i].CopyTo(nodeData, 49 * i);
+                octree._nodeData[i].CopyTo(nodeData, 49 * i);
 
-                // HACK: Temporary; intended to allow importing smaller file
-                for (int k = 0; k < octree._nodeData[i].Length; ++k)
-                    nodeData[49*i + k] = octree._nodeData[i][k];
-                for (int k = octree._nodeData[i].Length; k < 49; ++k)
-                    nodeData[49*i + k] = 0.0f;
+                // for (int k = 0; k < octree._nodeData[i].Length; ++k)
+                //     nodeData[49*i + k] = octree._nodeData[i][k];
+                // for (int k = octree._nodeData[i].Length; k < 49; ++k)
+                //     nodeData[49*i + k] = 0.0f;
             }
 
             var message = new Protobuf.SparseVoxelOctree();
@@ -165,7 +176,7 @@ namespace UnityNeRF
         //     int k = z * Depth;
         // }
 
-        // HACK: Ideally should not be public
+        // FIXME: Ideally should not be public
         public int AddNode()
         {
             int nodeIndex = _nodeData.Count;

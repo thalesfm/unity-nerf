@@ -19,6 +19,8 @@ namespace UnityNeRF.Editor
             SparseVoxelOctree<float[]>.Save(octree, path);
 
             GameObject prefab = GameObject.CreatePrimitive(PrimitiveType.Cube);
+
+            // TODO: Scale prefab based on `tree.invradius`
             
             MeshRenderer meshRenderer = prefab.GetComponent<MeshRenderer>();
             Material material = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>(MaterialPath);

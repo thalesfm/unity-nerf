@@ -23,11 +23,11 @@ namespace UnityNeRF.Editor
             var octree = new SparseVoxelOctree<float[]>(maxLevel);
             int nodeCount = tree.data.shape[0];
             
-            // Initialize nodes
+            // Allocate nodes
             for (int i = 1; i < nodeCount; ++i)
                 octree.AddNode();
             
-            // Initialize root (a bit hacky...)
+            // Initialize root node
             octree._nodeData[0] = new float[49];
             
             CopyNodeRecursive(tree, octree);
@@ -47,10 +47,8 @@ namespace UnityNeRF.Editor
                 int skip = source.child.GetInt32(index, x, y, z);
                 int childIndex = (skip != 0) ? index + skip : dest.AddNode();
 
-                float[] data = new float[49];
+                float[] data = new float[source.data_dim];
                 source.data[index, x, y, z, Slice.All].GetData().CopyTo(data.AsSpan());
-                // HACK
-                data[48] = source.data[index, x, y, z, source.data.shape[4] - 1];
 
                 dest._nodeChildren[8*index + 4*z + 2*y + x] = childIndex;
                 dest._nodeData[childIndex] = data;
