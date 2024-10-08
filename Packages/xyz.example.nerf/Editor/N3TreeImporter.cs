@@ -16,7 +16,7 @@ namespace UnityNeRF.Editor
             string path = System.IO.Path.ChangeExtension(ctx.assetPath, "bin");
             N3Tree tree = N3Tree.Load(ctx.assetPath);
             SparseVoxelOctree<float[]> octree = Convert.ToSparseVoxelOctree(tree, MaxLevel);
-            SparseVoxelOctree<float[]>.Save(octree, path);
+            octree.Save(path);
 
             GameObject prefab = GameObject.CreatePrimitive(PrimitiveType.Cube);
 

@@ -2,9 +2,9 @@ using System;
 using System.IO;
 using NUnit.Framework;
 
-namespace UnityNeRF.Tests
+namespace UnityNeRF.Editor.Tests
 {
-    public class SparseVoxelOctreeTests
+    public class SerializationTests
     {
         public static SparseVoxelOctree<float[]> Generate()
         {
@@ -23,10 +23,13 @@ namespace UnityNeRF.Tests
         [Test]
         public static void SaveLoad_RoundTrip()
         {
-            using var stream = new MemoryStream();
             SparseVoxelOctree<float[]> expected = Generate();
-            SparseVoxelOctree<float[]>.Save(expected, stream);
-            SparseVoxelOctree<float[]> actual = SparseVoxelOctree<float[]>.Load(stream);
+            
+            using var stream = new MemoryStream();
+            expected.Save(stream);
+            stream.Seek(0, SeekOrigin.Begin);
+
+            SparseVoxelOctree<float[]> actual = SparseVoxelOctree.Load<float[]>(stream);
 
             Assert.That(actual.Width, Is.EqualTo(expected.Width));
             Assert.That(actual.Height, Is.EqualTo(expected.Height));

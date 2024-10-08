@@ -84,7 +84,7 @@ namespace UnityNeRF
                 return;
             }
 
-            _voxelOctree = SparseVoxelOctree<float[]>.Load(_fileName);
+            _voxelOctree = SparseVoxelOctree.Load<float[]>(_fileName);
         }
 
         void InitNodeChildrenBuffer()
