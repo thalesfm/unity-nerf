@@ -1,2 +1,3 @@
-*.mtl binary
-*.obj binary
+*           text=auto
+*.mtl       binary
+*.obj       binary
