@@ -1,0 +1,6 @@
+{
+    "name": "xyz.example.nerf",
+    "version": "0.0.1",
+    "displayName": "Real-Time NeRF",
+    "unity": "2022.3"
+  }

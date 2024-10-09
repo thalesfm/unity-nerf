@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>NumSharp</id>
+    <version>0.30.0</version>
+    <authors>Haiping Chen, Eli Belash, Meinrad Recheis</authors>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <license type="file">LICENSE</license>
+    <licenseUrl>https://aka.ms/deprecateLicenseUrl</licenseUrl>
+    <projectUrl>https://github.com/SciSharp</projectUrl>
+    <iconUrl>https://avatars3.githubusercontent.com/u/44989469?s=200&amp;v=4</iconUrl>
+    <description>NumSharp is the fundamental library for scientific computing with .NET providing a similar API to python's numpy scientific library. NumSharp has full N-D, broadcasting and axis support.  If you want to use .NET to get started with machine learning, NumSharp will be your best tool.</description>
+    <copyright>2021 © SciSharp STACK Team</copyright>
+    <tags>Numpy, NumSharp, MachineLearning, Math, Scientific, Numeric, Mathlab, SciSharp</tags>
+    <repository type="git" url="https://github.com/SciSharp" />
+    <dependencies>
+      <group targetFramework=".NETStandard2.0">
+        <dependency id="System.Memory" version="4.5.4" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+</package>

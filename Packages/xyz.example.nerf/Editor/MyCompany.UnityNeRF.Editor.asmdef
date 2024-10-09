@@ -1,0 +1,18 @@
+{
+    "name": "MyCompany.UnityNeRF.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:51b1a44553e2afa48916aa120a513f93"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
