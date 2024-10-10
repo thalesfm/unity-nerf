@@ -5,6 +5,7 @@ struct SparseVoxelOctree {
     int width;
     int height;
     int depth;
+    int basisDim;
     int dataDim;
     int maxLevel;
     StructuredBuffer<int> nodeChildren;

@@ -122,6 +122,90 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1001 &313278581
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -2802648686388422957, guid: e11f7a5e82eb5574193fd94b01e984ce,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 2.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -2802648686388422957, guid: e11f7a5e82eb5574193fd94b01e984ce,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 2.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -2802648686388422957, guid: e11f7a5e82eb5574193fd94b01e984ce,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 2.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -2802648686388422957, guid: e11f7a5e82eb5574193fd94b01e984ce,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -1.795
+      objectReference: {fileID: 0}
+    - target: {fileID: -2802648686388422957, guid: e11f7a5e82eb5574193fd94b01e984ce,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.758
+      objectReference: {fileID: 0}
+    - target: {fileID: -2802648686388422957, guid: e11f7a5e82eb5574193fd94b01e984ce,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 3.317
+      objectReference: {fileID: 0}
+    - target: {fileID: -2802648686388422957, guid: e11f7a5e82eb5574193fd94b01e984ce,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.92387956
+      objectReference: {fileID: 0}
+    - target: {fileID: -2802648686388422957, guid: e11f7a5e82eb5574193fd94b01e984ce,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -2802648686388422957, guid: e11f7a5e82eb5574193fd94b01e984ce,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.38268343
+      objectReference: {fileID: 0}
+    - target: {fileID: -2802648686388422957, guid: e11f7a5e82eb5574193fd94b01e984ce,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -2802648686388422957, guid: e11f7a5e82eb5574193fd94b01e984ce,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -2802648686388422957, guid: e11f7a5e82eb5574193fd94b01e984ce,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 45
+      objectReference: {fileID: 0}
+    - target: {fileID: -2802648686388422957, guid: e11f7a5e82eb5574193fd94b01e984ce,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 214428876452384659, guid: e11f7a5e82eb5574193fd94b01e984ce,
+        type: 3}
+      propertyPath: m_Name
+      value: lego_sh9
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: -4216948427090074523, guid: e11f7a5e82eb5574193fd94b01e984ce,
+    type: 3}
 --- !u!1001 &617349966
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -198,7 +282,7 @@ PrefabInstance:
     - target: {fileID: 2669297830247130501, guid: 1e55e06cb6b79a2478c4a7df21dc4901,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -292,8 +376,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 712528119}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.15905923, y: -0.3111826, z: 0.052911945, w: 0.93544966}
-  m_LocalPosition: {x: -0.317, y: 1.8, z: 1.349}
+  m_LocalRotation: {x: -0.22918107, y: 0.024238411, z: -0.005756718, w: -0.97306496}
+  m_LocalPosition: {x: -1.7507789, y: 1.7205781, z: 0.5453742}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -609,3 +693,4 @@ SceneRoots:
   - {fileID: 1027029315}
   - {fileID: 833585714}
   - {fileID: 617349966}
+  - {fileID: 313278581}

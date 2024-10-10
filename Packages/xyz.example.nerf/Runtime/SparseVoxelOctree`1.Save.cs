@@ -19,24 +19,23 @@ namespace UnityNeRF
             if (!typeof(T).IsArray || typeof(T).GetElementType() != typeof(float))
                 throw new NotSupportedException();
             
-            // HACK: Find length of array in populated voxel
-            int dataLength = 0;
-            for (int i = 0; i < _nodeData.Count; ++i)
-            {
-                if (_nodeData[i] != null)
-                {
-                    dataLength = (_nodeData[i] as float[]).Length;
-                    break;
-                }
-            }
+            // int dataLength = 0;
+            // for (int i = 0; i < _nodeData.Count; ++i)
+            // {
+            //     if (_nodeData[i] != null)
+            //     {
+            //         dataLength = (_nodeData[i] as float[]).Length;
+            //         break;
+            //     }
+            // }
             
-            float[] nodeData = new float[_nodeData.Count * dataLength];
+            float[] nodeData = new float[_nodeData.Count * DataDim];
 
             for (int i = 0; i < _nodeData.Count; ++i)
             {
                 if (_nodeData[i] != null)
                 {
-                    (_nodeData[i] as float[]).CopyTo(nodeData, dataLength * i);
+                    (_nodeData[i] as float[]).CopyTo(nodeData, DataDim * i);
                 }
             }
 

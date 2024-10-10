@@ -8,7 +8,7 @@ namespace UnityNeRF.Editor.Tests
     {
         public static SparseVoxelOctree<float[]> Generate()
         {
-            var octree = new SparseVoxelOctree<float[]>(100, 100, 100);
+            var octree = new SparseVoxelOctree<float[]>(100, 100, 100, 3);
 
             for (int x = 0; x < 100; ++x)
             for (int y = 0; y < 100; ++y)

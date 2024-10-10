@@ -20,7 +20,7 @@ namespace UnityNeRF.Editor
             if (maxLevel > tree.depth_limit + 1)
                 maxLevel = tree.depth_limit + 1;
             
-            var octree = new SparseVoxelOctree<float[]>(maxLevel);
+            var octree = new SparseVoxelOctree<float[]>(maxLevel, tree.data_dim);
             int nodeCount = tree.data.shape[0];
             
             // Allocate nodes
