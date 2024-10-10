@@ -21,13 +21,13 @@ namespace UnityNeRF
             if (Any.GetTypeName(message.TypeUrl) != FloatValue.Descriptor.FullName)
                 throw new NotSupportedException();
             
-            var octree = new SparseVoxelOctree<float[]>(message.Width, message.Height, message.Depth);
+            var nodeCount = message.NodeChildren.Count / 8;
+            int dataDim = message.NodeData.Length / (sizeof (float) * nodeCount);
+            
+            var octree = new SparseVoxelOctree<float[]>(message.Width, message.Height, message.Depth, dataDim);
             octree._nodeChildren.Clear();
             octree._nodeChildren.AddRange(message.NodeChildren);
             octree._nodeData.Clear();
-
-            var nodeCount = message.NodeChildren.Count / 8;
-            int dataLength = message.NodeData.Length / (sizeof (float) * nodeCount);
 
             for (int i = 0; i < nodeCount; ++i)
             {
@@ -39,9 +39,9 @@ namespace UnityNeRF
                 //     data[k] = value;
                 // }
                 
-                var data = new float[dataLength];
-                int offset = sizeof (float) * dataLength * i;
-                var span = message.NodeData.Span.Slice(offset, sizeof (float) * dataLength);
+                var data = new float[dataDim];
+                int offset = sizeof (float) * dataDim * i;
+                var span = message.NodeData.Span.Slice(offset, sizeof (float) * dataDim);
                 span.CopyTo(MemoryMarshal.Cast<float, byte>(data.AsSpan()));
                 octree._nodeData.Add(data);
             }

@@ -11,7 +11,7 @@ namespace UnityNeRF
         public string _fileName;
 
         private Material _material;
-        private UnityNeRF.SparseVoxelOctree<float[]> _voxelOctree;
+        private SparseVoxelOctree<float[]> _voxelOctree;
         private ComputeBuffer _nodeChildrenBuffer;
         private ComputeBuffer _nodeDataBuffer;
     
@@ -105,10 +105,10 @@ namespace UnityNeRF
             }
 
             List<float[]> nodeData = _voxelOctree.GetNodeData();
-            List<float> nodeDataRaw = new List<float>(49 * nodeData.Count);
+            List<float> nodeDataRaw = new List<float>(_voxelOctree.DataDim * nodeData.Count);
 
             for (int i = 0; i < nodeData.Count; ++i) {
-                for (int j = 0; j < 49; ++j) {
+                for (int j = 0; j < _voxelOctree.DataDim; ++j) {
                     if (nodeData[i] != null) {
                         nodeDataRaw.Add(nodeData[i][j]);
                     } else {
@@ -134,6 +134,10 @@ namespace UnityNeRF
             _material.SetInt("_SVOWidth", _voxelOctree.Width);
             _material.SetInt("_SVOHeight", _voxelOctree.Height);
             _material.SetInt("_SVODepth", _voxelOctree.Depth);
+            _material.SetInt("_SVOBasisDim", _voxelOctree.BasisDim);
+            // Debug.Log($"_SVOBasisDim = {_voxelOctree.BasisDim}");
+            _material.SetInt("_SVODataDim", _voxelOctree.DataDim);
+            // Debug.Log($"_SVODataDim = {_voxelOctree.DataDim}");
             _material.SetInt("_SVOMaxLevel", _voxelOctree.MaxLevel);
             _material.SetBuffer("_SVONodeChildren", _nodeChildrenBuffer);
             _material.SetBuffer("_SVONodeData", _nodeDataBuffer);

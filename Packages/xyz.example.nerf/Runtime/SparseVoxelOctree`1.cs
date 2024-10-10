@@ -9,15 +9,19 @@ namespace UnityNeRF
         public readonly int Width;
         public readonly int Height;
         public readonly int Depth;
+        public readonly int BasisDim;
+        public readonly int DataDim;
         public readonly int MaxLevel;
 
         public List<int> _nodeChildren; // FIXME: Ideally should not be public
         public List<T> _nodeData;       // FIXME: Ideally should not be public
 
-        public SparseVoxelOctree(int maxLevel)
+        public SparseVoxelOctree(int maxLevel, int dataDim)
         {
             Width = Height = Depth = (int) Math.Pow(2.0, maxLevel);
-            MaxLevel = maxLevel;;
+            BasisDim = (dataDim - 1) / 3;
+            DataDim = dataDim;
+            MaxLevel = maxLevel;
 
             _nodeChildren = new List<int>();
             _nodeData = new List<T>();
@@ -25,11 +29,13 @@ namespace UnityNeRF
             Clear();
         }
 
-        public SparseVoxelOctree(int width, int height, int depth)
+        public SparseVoxelOctree(int width, int height, int depth, int dataDim)
         {
             Width  = width;
             Height = height;
             Depth  = depth;
+            BasisDim = (dataDim - 1) / 3;
+            DataDim = dataDim;
 
             MaxLevel = 0;
             MaxLevel = Math.Max((int) Math.Ceiling(Math.Log(width, 2.0)), MaxLevel);

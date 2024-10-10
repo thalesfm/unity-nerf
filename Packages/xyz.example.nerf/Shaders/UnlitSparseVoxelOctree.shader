@@ -21,6 +21,8 @@ Shader "Unlit/SparseVoxelOctree"
         int _SVOWidth;
         int _SVOHeight;
         int _SVODepth;
+        int _SVOBasisDim;
+        int _SVODataDim;
         int _SVOMaxLevel;
         StructuredBuffer<int> _SVONodeChildren;
         StructuredBuffer<float> _SVONodeData;
@@ -44,7 +46,8 @@ Shader "Unlit/SparseVoxelOctree"
         svo.width = _SVOWidth;
         svo.height = _SVOHeight;
         svo.depth = _SVODepth;
-        svo.dataDim = 49;
+        svo.basisDim = _SVOBasisDim;
+        svo.dataDim = _SVODataDim;
         svo.maxLevel = _SVOMaxLevel;
         svo.nodeChildren = _SVONodeChildren;
         svo.nodeData = _SVONodeData;
@@ -53,17 +56,17 @@ Shader "Unlit/SparseVoxelOctree"
 
     float GetNodeDensity(SparseVoxelOctree svo, int nodeIndex)
     {
-        return SVOGetNodeData(svo, nodeIndex, 48);
+        return SVOGetNodeData(svo, nodeIndex, svo.dataDim - 1);
     }
 
-    float3 ComputeNodeColor(SparseVoxelOctree svo, int nodeIndex, float shBasis[16])
+    float3 ComputeNodeColor(SparseVoxelOctree svo, int nodeIndex, float shBasis[25])
     {
         float3 tmp = float3(0.0, 0.0, 0.0);
 
-        for (int i = 0; i < 16; ++i) {
-            tmp.r += shBasis[i] * SVOGetNodeData(svo, nodeIndex, i);
-            tmp.g += shBasis[i] * SVOGetNodeData(svo, nodeIndex, 16 + i);
-            tmp.b += shBasis[i] * SVOGetNodeData(svo, nodeIndex, 32 + i);
+        for (int i = 0; i < svo.basisDim; ++i) {
+            tmp.r += shBasis[i] * SVOGetNodeData(svo, nodeIndex,                  i);
+            tmp.g += shBasis[i] * SVOGetNodeData(svo, nodeIndex,   svo.basisDim + i);
+            tmp.b += shBasis[i] * SVOGetNodeData(svo, nodeIndex, 2*svo.basisDim + i);
         }
 
         return 1.0 / (1.0 + exp(-tmp));
@@ -129,8 +132,8 @@ Shader "Unlit/SparseVoxelOctree"
             }
         }
                 
-        float shBasis[16];
-        EvalSH16(rayDirectionOS, shBasis);
+        float shBasis[25];
+        EvalSH25(rayDirectionOS, shBasis);
 
         float3 finalColor = float3(0.0, 0.0, 0.0);
         float finalDepth = 0.0;
