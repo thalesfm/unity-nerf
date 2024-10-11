@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEditor.AssetImporters;
 using System;
+using UnityNeRF.Editor.PlenOctree;
 
 namespace UnityNeRF.Editor
 {
@@ -15,7 +16,7 @@ namespace UnityNeRF.Editor
         {
             string path = System.IO.Path.ChangeExtension(ctx.assetPath, "bin");
             N3Tree tree = N3Tree.Load(ctx.assetPath);
-            SparseVoxelOctree<float[]> octree = Convert.ToSparseVoxelOctree(tree, MaxLevel);
+            SparseArray3D<float[]> octree = Convert.ToSparseArray3D<float[]>(tree, MaxLevel);
             octree.Save(path);
 
             GameObject prefab = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -27,7 +28,7 @@ namespace UnityNeRF.Editor
             Material materialCopy = new Material(material);
             meshRenderer.material = materialCopy;
 
-            SparseVoxelOctreeRenderer volumeRenderer = prefab.AddComponent<SparseVoxelOctreeRenderer>();
+            RadianceFieldRenderer volumeRenderer = prefab.AddComponent<RadianceFieldRenderer>();
             volumeRenderer._fileName = path;
 
             ctx.AddObjectToAsset("prefab", prefab);

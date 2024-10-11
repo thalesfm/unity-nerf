@@ -1,17 +1,17 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace UnityNeRF
 {
-
     [ExecuteAlways]
     [RequireComponent(typeof(MeshRenderer))]
-    public class SparseVoxelOctreeRenderer : MonoBehaviour
+    public class RadianceFieldRenderer : MonoBehaviour
     {
         public string _fileName;
 
         private Material _material;
-        private SparseVoxelOctree<float[]> _voxelOctree;
+        private SparseArray3D<float[]> _voxelOctree;
         private ComputeBuffer _nodeChildrenBuffer;
         private ComputeBuffer _nodeDataBuffer;
     
@@ -84,7 +84,7 @@ namespace UnityNeRF
                 return;
             }
 
-            _voxelOctree = SparseVoxelOctree.Load<float[]>(_fileName);
+            _voxelOctree = SparseArray3D.Load<float[]>(_fileName);
         }
 
         void InitNodeChildrenBuffer()
@@ -104,21 +104,7 @@ namespace UnityNeRF
                 return;
             }
 
-            List<float[]> nodeData = _voxelOctree.GetNodeData();
-            List<float> nodeDataRaw = new List<float>(_voxelOctree.DataDim * nodeData.Count);
-
-            for (int i = 0; i < nodeData.Count; ++i) {
-                for (int j = 0; j < _voxelOctree.DataDim; ++j) {
-                    if (nodeData[i] != null) {
-                        nodeDataRaw.Add(nodeData[i][j]);
-                    } else {
-                        nodeDataRaw.Add(0.0f);
-                    }
-                }
-            }
-
-            _nodeDataBuffer = new ComputeBuffer(nodeDataRaw.Count, sizeof(float));
-            _nodeDataBuffer.SetData<float>(nodeDataRaw);
+            // TODO
         }
 
         void InitMaterial()
@@ -134,10 +120,8 @@ namespace UnityNeRF
             _material.SetInt("_SVOWidth", _voxelOctree.Width);
             _material.SetInt("_SVOHeight", _voxelOctree.Height);
             _material.SetInt("_SVODepth", _voxelOctree.Depth);
-            _material.SetInt("_SVOBasisDim", _voxelOctree.BasisDim);
-            // Debug.Log($"_SVOBasisDim = {_voxelOctree.BasisDim}");
-            _material.SetInt("_SVODataDim", _voxelOctree.DataDim);
-            // Debug.Log($"_SVODataDim = {_voxelOctree.DataDim}");
+            // _material.SetInt("_SVOBasisDim", (_voxelOctree.DataDim - 1) / 3);
+            // _material.SetInt("_SVODataDim", _voxelOctree.DataDim);
             _material.SetInt("_SVOMaxLevel", _voxelOctree.MaxLevel);
             _material.SetBuffer("_SVONodeChildren", _nodeChildrenBuffer);
             _material.SetBuffer("_SVONodeData", _nodeDataBuffer);

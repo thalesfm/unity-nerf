@@ -1,7 +1,6 @@
-using System.Collections.Generic;
 using NUnit.Framework;
-using NumSharp;
 using UnityEngine;
+using UnityNeRF.Editor.PlenOctree;
 
 namespace UnityNeRF.Editor.Tests
 {
@@ -15,7 +14,7 @@ namespace UnityNeRF.Editor.Tests
             // Assert(tree.data_format.format == RGB)
             // Assert(tree.data_dim == 3)
 
-            SparseVoxelOctree<float[]> octree = Convert.ToSparseVoxelOctree(tree);
+            SparseArray3D<float[]> octree = Convert.ToSparseArray3D<float[]>(tree);
             System.Random random = new System.Random();
 
             for (int i = 0; i < octree.Width;  ++i)
@@ -26,7 +25,7 @@ namespace UnityNeRF.Editor.Tests
                 float y = (j + 0.5f) / octree.Height;
                 float z = (k + 0.5f) / octree.Depth;
 
-                float[] expected = tree.Sample(new Vector3(x, y, z)).ToArray<float>();
+                float[] expected = tree.forward(new Vector3(x, y, z), false).ToArray<float>();
                 float[] actual = octree[i, j, k];
 
                 Assert.That(actual, Is.EqualTo(expected));

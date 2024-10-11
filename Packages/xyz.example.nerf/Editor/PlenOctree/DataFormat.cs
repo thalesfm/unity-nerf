@@ -5,7 +5,7 @@ using NumSharp;
 
 // #pragma warning disable IDE1006 // Naming Styles
 
-namespace UnityNeRF
+namespace UnityNeRF.Editor.PlenOctree
 {
     public readonly struct DataFormat
     {
@@ -63,41 +63,5 @@ namespace UnityNeRF
                 throw new Exception("Unreachable");
             }
         }
-
-        // public static bool TryParse(string str, out DataFormat format)
-        // {
-        //     if (str is null)
-        //         goto Fail;
-            
-        //     if (str == "RGBA")
-        //     {
-        //         format = new DataFormat(RGBA, -1);
-        //         return true;
-        //     }
-            
-        //     var suffix = str.SkipWhile(char.IsLetter).ToString();
-        //     if (!int.TryParse(suffix, out int basis_dim))
-        //         goto Fail;
-            
-        //     if (str.StartsWith("SH"))
-        //     {
-        //         format = new DataFormat(SH, basis_dim);
-        //         return true;
-        //     }
-        //     if (str.StartsWith("SG"))
-        //     {
-        //         format = new DataFormat(SG, basis_dim);
-        //         return true;
-        //     }
-        //     if (str.StartsWith("ASG"))
-        //     {
-        //         format = new DataFormat(ASG, basis_dim);
-        //         return true;
-        //     }
-            
-        // Fail:
-        //     format = default;
-        //     return false;
-        // }
     }
 } // namespace UnityNeRF
