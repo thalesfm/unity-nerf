@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 using NumSharp;
-using UnityEngine.Assertions;
 using UnityNeRF.Editor.PlenOctree;
 
 namespace UnityNeRF.Editor
@@ -21,10 +19,6 @@ namespace UnityNeRF.Editor
             
             if (maxLevel > tree.depth_limit + 1)
                 maxLevel = tree.depth_limit + 1;
-            
-            // int width, height, depth;
-            // width = height = depth = 1 << maxLevel;
-            // int data_dim = tree.data.shape[^1];
             
             var array = new SparseArray3D<float[]>(1 << maxLevel, 1 << maxLevel, 1 << maxLevel);
             
@@ -77,28 +71,5 @@ namespace UnityNeRF.Editor
                 }
             }
         }
-
-        // private static void CopyNodeRecursive(N3Tree source, SparseArray3D<SH16Voxel> dest, int index = 0, int level = 0)
-        // {
-        //     if (level >= dest.MaxLevel)
-        //         return;
-
-        //     for (int x = 0; x < 2; ++x)
-        //     for (int y = 0; y < 2; ++y)
-        //     for (int z = 0; z < 2; ++z)
-        //     {
-        //         int skip = source.child.GetInt32(index, x, y, z);
-        //         int childIndex = (skip != 0) ? index + skip : dest.AddNode();
-
-        //         float[] data = new float[source.data_dim];
-        //         source.data[index, x, y, z, Slice.All].GetData().CopyTo(data.AsSpan());
-
-        //         dest._nodeChildren[8*index + 4*z + 2*y + x] = childIndex;
-        //         dest._nodeData[childIndex] = new SH16Voxel();
-
-        //         if (skip != 0)
-        //             CopyNodeRecursive(source, dest, childIndex, level + 1);
-        //     }
-        // }
     }
 }

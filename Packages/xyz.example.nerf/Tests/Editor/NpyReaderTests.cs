@@ -2,7 +2,6 @@ using System;
 using NUnit.Framework;
 using NumSharp;
 using UnityNeRF.Editor.IO;
-using UnityNeRF;
 
 namespace UnityNeRF.Editor.Tests
 {

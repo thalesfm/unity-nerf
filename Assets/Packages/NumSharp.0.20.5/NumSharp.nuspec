@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>NumSharp</id>
+    <version>0.20.5</version>
+    <authors>Eli Belash, Haiping Chen, Meinrad Recheis, Deepak Kumar Battini</authors>
+    <owners>Eli Belash, Haiping Chen, Meinrad Recheis, Deepak Kumar Battini</owners>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <license type="file">LICENSE</license>
+    <licenseUrl>https://aka.ms/deprecateLicenseUrl</licenseUrl>
+    <projectUrl>https://github.com/SciSharp</projectUrl>
+    <iconUrl>https://avatars3.githubusercontent.com/u/44989469?s=200&amp;v=4</iconUrl>
+    <description>NumSharp is the fundamental library for scientific computing with .NET providing a similar API to python's numpy scientific library. NumSharp has full N-D, broadcasting and axis support.  If you want to use .NET to get started with machine learning, NumSharp will be your best tool.</description>
+    <releaseNotes>Rewrite of the NDArray's getter mechanism. Added np.nonzero, np.maximum, np.minimum, np.all, np.any. np.clip: Added @out argument. Added NPTypeCode.Float as an alias to NPTypeCode.Single.</releaseNotes>
+    <copyright>2019 © SciSharp STACK Team</copyright>
+    <tags>Numpy, NumSharp, MachineLearning, Math, Scientific, Numeric, Mathlab, SciSharp</tags>
+    <repository type="git" url="https://github.com/SciSharp/NumSharp" />
+    <dependencies>
+      <group targetFramework=".NETStandard2.0">
+        <dependency id="System.Memory" version="4.5.3" exclude="Build,Analyzers" />
+        <dependency id="System.Runtime.CompilerServices.Unsafe" version="4.5.2" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+</package>
