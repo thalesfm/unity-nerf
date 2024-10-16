@@ -1,6 +1,5 @@
 using System;
 using NUnit.Framework;
-using UnityNeRF.Editor.PlenOctree;
 
 namespace UnityNeRF.Editor.Tests
 {

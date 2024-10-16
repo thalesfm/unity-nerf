@@ -1,6 +1,6 @@
 using UnityEngine;
+using UnityEditor;
 using UnityEditor.AssetImporters;
-using System;
 
 namespace UnityNeRF.Editor
 {
@@ -13,26 +13,32 @@ namespace UnityNeRF.Editor
 
         public override void OnImportAsset(AssetImportContext ctx)
         {
-            throw new Exception(); // Currently pretty slow; disabled for now
-
-            var path = System.IO.Path.ChangeExtension(ctx.assetPath, "bin");
-            var tree = PlenOctree.N3Tree.Load(ctx.assetPath);
-            var octree = Convert.ToSparseArray3D<float[]>(tree, MaxLevel);
-            octree.Save(path);
+            var tree = N3Tree.Load(ctx.assetPath);
 
             GameObject prefab = GameObject.CreatePrimitive(PrimitiveType.Cube);
 
             // TODO: Scale prefab based on `tree.invradius`
             
             MeshRenderer meshRenderer = prefab.GetComponent<MeshRenderer>();
-            Material material = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>(MaterialPath);
+            Material material = AssetDatabase.LoadAssetAtPath<Material>(MaterialPath);
             Material materialCopy = new Material(material);
             meshRenderer.material = materialCopy;
 
-            RadianceFieldRenderer volumeRenderer = prefab.AddComponent<RadianceFieldRenderer>();
-            volumeRenderer._fileName = path;
+            var plenoctree = ScriptableObject.CreateInstance<PlenOctree>();
+            plenoctree.array = Convert.ToSparseArray3D<float[]>(tree, MaxLevel);
+            plenoctree.format = tree.data_format;
+
+            // var path = System.IO.Path.ChangeExtension(ctx.assetPath, "asset");
+            // AssetDatabase.CreateAsset(plenoctree, path);
+            // AssetDatabase.SaveAssets();
+
+            prefab.SetActive(false); // Prevent `Awake`, `OnEnable` from being invoked
+            PlenOctreeRenderer renderer = prefab.AddComponent<PlenOctreeRenderer>();
+            renderer._plenoctree = plenoctree;
+            prefab.SetActive(true);
 
             ctx.AddObjectToAsset("prefab", prefab);
+            ctx.AddObjectToAsset("plenoctree", plenoctree);
             ctx.AddObjectToAsset("material", materialCopy);
             ctx.SetMainObject(prefab);
         }

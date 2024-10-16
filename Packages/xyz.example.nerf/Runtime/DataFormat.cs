@@ -5,17 +5,18 @@ using NumSharp;
 
 // #pragma warning disable IDE1006 // Naming Styles
 
-namespace UnityNeRF.Editor.PlenOctree
+namespace UnityNeRF
 {
-    public readonly struct DataFormat
+    [Serializable]
+    public struct DataFormat
     {
         public const int RGBA = 0;
         public const int SH   = 1;
         public const int SG   = 2;
         public const int ASG  = 3;
 
-        public readonly int format;
-        public readonly int basis_dim;
+        public int format;
+        public int basis_dim;
 
         [SuppressMessage("Style", "IDE1006:Naming Styles")]
         public int data_dim => 3 * basis_dim + 1;

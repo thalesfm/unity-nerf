@@ -6,23 +6,13 @@ namespace UnityNeRF
 {
     [ExecuteAlways]
     [RequireComponent(typeof(MeshRenderer))]
-    public class RadianceFieldRenderer : MonoBehaviour
+    public class PlenOctreeRenderer : MonoBehaviour
     {
-        public string _fileName;
+        public PlenOctree _plenoctree;
 
         private Material _material;
-        private SparseArray3D<float[]> _voxelOctree;
         private ComputeBuffer _nodeChildrenBuffer;
         private ComputeBuffer _nodeDataBuffer;
-    
-        void Awake()
-        {
-            if (_fileName == null) {
-                Debug.LogWarning("Voxel grid file name is missing!");
-            }
-
-            Init();
-        }
 
         void Update()
         {
@@ -31,6 +21,11 @@ namespace UnityNeRF
             if (!Application.IsPlaying(gameObject)) {
                 Init();
             }
+        }
+
+        void Awake()
+        {
+            Init();
         }
 
         void OnDisable()
@@ -59,10 +54,6 @@ namespace UnityNeRF
 
         void Init()
         {
-            if (_voxelOctree == null) {
-                InitVoxelOctree();
-            }
-
             if (_nodeChildrenBuffer == null) {
                 InitNodeChildrenBuffer();
             }
@@ -78,38 +69,35 @@ namespace UnityNeRF
             }
         }
 
-        void InitVoxelOctree()
-        {
-            if (_fileName == null) {
-                return;
-            }
-
-            _voxelOctree = SparseArray3D.Load<float[]>(_fileName);
-        }
-
         void InitNodeChildrenBuffer()
-        {
-            if (_voxelOctree == null) {
-                return;
-            }
-            
-            List<int> nodeChildren = _voxelOctree.GetNodeChildren();
+        {   
+            List<int> nodeChildren = _plenoctree.array.GetNodeChildren();
             _nodeChildrenBuffer = new ComputeBuffer(nodeChildren.Count, sizeof(int));
             _nodeChildrenBuffer.SetData<int>(nodeChildren);
         }
 
         void InitNodeDataBuffer()
         {
-            if (_voxelOctree == null) {
-                return;
+            List<float[]> nodeData = _plenoctree.array.GetNodeData();
+            List<float> nodeDataRaw = new List<float>(_plenoctree.format.data_dim * nodeData.Count);
+
+            for (int i = 0; i < nodeData.Count; ++i) {
+                for (int j = 0; j < _plenoctree.format.data_dim; ++j) {
+                    if (nodeData[i] != null) {
+                        nodeDataRaw.Add(nodeData[i][j]);
+                    } else {
+                        nodeDataRaw.Add(0.0f);
+                    }
+                }
             }
 
-            // TODO
+            _nodeDataBuffer = new ComputeBuffer(nodeDataRaw.Count, sizeof(float));
+            _nodeDataBuffer.SetData<float>(nodeDataRaw);
         }
 
         void InitMaterial()
         {
-            if (_voxelOctree == null || _nodeChildrenBuffer == null || _nodeDataBuffer == null) {
+            if (_plenoctree == null || _nodeChildrenBuffer == null || _nodeDataBuffer == null) {
                 return;
             }
 
@@ -117,12 +105,12 @@ namespace UnityNeRF
                 _material = GetComponent<MeshRenderer>().sharedMaterial;
             }
 
-            _material.SetInt("_SVOWidth", _voxelOctree.Width);
-            _material.SetInt("_SVOHeight", _voxelOctree.Height);
-            _material.SetInt("_SVODepth", _voxelOctree.Depth);
-            // _material.SetInt("_SVOBasisDim", (_voxelOctree.DataDim - 1) / 3);
-            // _material.SetInt("_SVODataDim", _voxelOctree.DataDim);
-            _material.SetInt("_SVOMaxLevel", _voxelOctree.MaxLevel);
+            _material.SetInt("_SVOWidth", _plenoctree.array.Width);
+            _material.SetInt("_SVOHeight", _plenoctree.array.Height);
+            _material.SetInt("_SVODepth", _plenoctree.array.Depth);
+            _material.SetInt("_SVOBasisDim", (_plenoctree.format.data_dim - 1) / 3);
+            _material.SetInt("_SVODataDim", _plenoctree.format.data_dim);
+            _material.SetInt("_SVOMaxLevel", _plenoctree.array.MaxLevel);
             _material.SetBuffer("_SVONodeChildren", _nodeChildrenBuffer);
             _material.SetBuffer("_SVONodeData", _nodeDataBuffer);
         }

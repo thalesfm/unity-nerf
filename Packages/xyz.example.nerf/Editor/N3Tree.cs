@@ -1,15 +1,14 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+// using System.Numerics.Tensors;
 using System.Runtime.CompilerServices;
 using NumSharp;
 using NumSharp.Generic;
 using UnityEngine;
 using UnityNeRF.Editor.IO;
 
-namespace UnityNeRF.Editor.PlenOctree
+namespace UnityNeRF.Editor
 {
     public class N3Tree // : IEnumerable<N3TreeNode>
     {
@@ -25,6 +24,8 @@ namespace UnityNeRF.Editor.PlenOctree
         // private ... extra_data;
 
         private int _n_internal;
+
+        // public IEnumerable<N3TreeNode> Frontier => throw new NotImplementedException();
 
         private N3Tree()
         {
@@ -104,17 +105,6 @@ namespace UnityNeRF.Editor.PlenOctree
             return tree;
         }
 
-        // [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        // public N3TreeNode this[int key]
-        // {
-        //     get
-        //     {
-        //         if (key < 0 || data.shape[0] <= key)
-        //             throw new IndexOutOfRangeException();
-        //         return new N3TreeNode(this, key);
-        //     }
-        // }
-
         public Vector3 world2tree(Vector3 indices)
         {
             float x = offset.x + indices.x * invradius.z;
@@ -164,7 +154,6 @@ namespace UnityNeRF.Editor.PlenOctree
     //     {
     //         Tree = tree;
     //         Key = key;
-    //         Index = index;
     //     }
     // }
 }

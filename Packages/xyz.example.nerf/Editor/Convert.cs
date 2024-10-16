@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using NumSharp;
-using UnityNeRF.Editor.PlenOctree;
 
 namespace UnityNeRF.Editor
 {

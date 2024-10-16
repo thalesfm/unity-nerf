@@ -1,19 +1,17 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 
 namespace UnityNeRF
 {
     [Serializable]
-    public partial class SparseArray3D<T> : SparseArray3D
+    public partial class SparseArray3D<T> : SparseArray3D, IEnumerable<KeyValuePair<(int, int, int), T>>
     {
-        public readonly int Width;
-        public readonly int Height;
-        public readonly int Depth;
+        public /* readonly */ int Width;
+        public /* readonly */ int Height;
+        public /* readonly */ int Depth;
 
-        public readonly int MaxLevel;
+        public /* readonly */ int MaxLevel;
         public List<int> _nodeChildren; // FIXME: Ideally should not be public
         public List<T> _nodeData;       // FIXME: Ideally should not be public
 
@@ -34,25 +32,25 @@ namespace UnityNeRF
             Clear();
         }
 
-        public SparseArray3D(IEnumerable<KeyValuePair<(int, int, int), T>> collection)
-        {
-            // TODO
-            throw new NotImplementedException();
-        }
+        // public SparseArray3D(IEnumerable<KeyValuePair<(int, int, int), T>> collection)
+        // {
+        //     // TODO
+        //     throw new NotImplementedException();
+        // }
 
-        [Conditional("UNITY_EDITOR")]
-        public void Save(string path)
-        {
-            using var stream = File.OpenWrite(path);
-            Save(stream);
-        }
+        // [Conditional("UNITY_EDITOR")]
+        // public void Save(string path)
+        // {
+        //     using var stream = File.OpenWrite(path);
+        //     Save(stream);
+        // }
 
-        [Conditional("UNITY_EDITOR")]
-        public void Save(Stream stream)
-        {
-            // WARNING: Unsafe! Replace ASAP
-            new BinaryFormatter().Serialize(stream, this);
-        }
+        // [Conditional("UNITY_EDITOR")]
+        // public void Save(Stream stream)
+        // {
+        //     // WARNING: Unsafe! Replace ASAP
+        //     new BinaryFormatter().Serialize(stream, this);
+        // }
 
         public T this[int x, int y, int z, int level = 0]
         {
@@ -95,15 +93,7 @@ namespace UnityNeRF
             return _nodeData;
         }
 
-        // public T Sample(float x, float y, float z)
-        // {
-        //     int i = (int)(x * Width;
-        //     int j = y * Height;
-        //     int k = z * Depth;
-        // }
-
-        // FIXME: Ideally should not be public
-        public int AddNode()
+        private int AddNode()
         {
             int nodeIndex = _nodeData.Count;
 
@@ -158,5 +148,39 @@ namespace UnityNeRF
 
             return nodeIndex;
         }
+
+        public IEnumerator<KeyValuePair<(int, int, int), T>> GetEnumerator()
+        {
+            return Entries.GetEnumerator();
+        }
+
+        public IEnumerable<KeyValuePair<(int, int, int), T>> Entries => GetEntriesRecursive(0, (0, 0, 0), 0);
+
+        private IEnumerable<KeyValuePair<(int, int, int), T>> GetEntriesRecursive(int nodeIndex, (int, int, int) acc, int level)
+        {
+            if (level == MaxLevel) // Leaf node
+            {
+                yield return KeyValuePair.Create(acc, _nodeData[nodeIndex]);
+                yield break;
+            }
+
+            for (int qx = 0; qx < 2; ++qx)
+            for (int qy = 0; qy < 2; ++qy)
+            for (int qz = 0; qz < 2; ++qz)
+            {
+                int childId = _nodeChildren[8*nodeIndex + 4*qz + 2*qy + qx];
+                if (childId == -1)
+                    continue;
+                
+                int x = 2 * acc.Item1 + qx;
+                int y = 2 * acc.Item2 + qy;
+                int z = 2 * acc.Item3 + qz;
+
+                foreach (var entry in GetEntriesRecursive(childId, (x, y, z), level + 1))
+                    yield return entry;
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 } // namespace UnityNeRF

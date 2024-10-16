@@ -20,27 +20,27 @@ namespace UnityNeRF.Editor.Tests
             return array;
         }
 
-        [Test]
-        public static void SaveLoad_RoundTrip()
-        {
-            SparseArray3D<float[]> expected = Generate();
+        // [Test]
+        // public static void SaveLoad_RoundTrip()
+        // {
+        //     SparseArray3D<float[]> expected = Generate();
             
-            using var stream = new MemoryStream();
-            expected.Save(stream);
-            stream.Seek(0, SeekOrigin.Begin);
+        //     using var stream = new MemoryStream();
+        //     expected.Save(stream);
+        //     stream.Seek(0, SeekOrigin.Begin);
 
-            SparseArray3D<float[]> actual = SparseArray3D.Load<float[]>(stream);
+        //     SparseArray3D<float[]> actual = SparseArray3D.Load<float[]>(stream);
 
-            Assert.That(actual.Width, Is.EqualTo(expected.Width));
-            Assert.That(actual.Height, Is.EqualTo(expected.Height));
-            Assert.That(actual.Depth, Is.EqualTo(expected.Depth));
+        //     Assert.That(actual.Width, Is.EqualTo(expected.Width));
+        //     Assert.That(actual.Height, Is.EqualTo(expected.Height));
+        //     Assert.That(actual.Depth, Is.EqualTo(expected.Depth));
 
-            for (int x = 0; x < expected.Width; ++x)
-            for (int y = 0; y < expected.Height; ++y)
-            for (int z = 0; z < expected.Depth; ++z)
-            {
-                Assert.That(actual[x, y, z], Is.EqualTo(expected[x, y, z]));
-            }
-        }
+        //     for (int x = 0; x < expected.Width; ++x)
+        //     for (int y = 0; y < expected.Height; ++y)
+        //     for (int z = 0; z < expected.Depth; ++z)
+        //     {
+        //         Assert.That(actual[x, y, z], Is.EqualTo(expected[x, y, z]));
+        //     }
+        // }
     }
 }
