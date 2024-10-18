@@ -1,68 +1,73 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-// using System.Numerics.Tensors;
-using System.Runtime.CompilerServices;
+using UnityEngine;
 using NumSharp;
 using NumSharp.Generic;
-using UnityEngine;
 using UnityNeRF.Editor.IO;
+using System.Collections;
 
 namespace UnityNeRF.Editor
 {
-    public class N3Tree // : IEnumerable<N3TreeNode>
+    public class N3Tree // : IEnumerable<KeyValuePair<Vector3Int, float[]>>
     {
         public int N;
-        public DataFormat data_format;
-        public int data_dim;
-        public NDArray<float> data;
-        public NDArray<int> child;
-        public NDArray<int> parent_depth;
-        public Vector3 invradius;
-        public Vector3 offset;
+        public int data_dim { get; private set; }
         public int depth_limit;
+        public DataFormat data_format { get; private set; }
         // private ... extra_data;
 
+        private NDArray<float> data;
+        private NDArray<int> child;
+        private NDArray<int> parent_depth;
+        private Vector3 invradius;
+        private Vector3 offset;
         private int _n_internal;
 
-        // public IEnumerable<N3TreeNode> Frontier => throw new NotImplementedException();
-
         private N3Tree()
+        { }
+
+        public Vector3 Radius
         {
+            get => new Vector3(
+                0.5f / invradius.x,
+                0.5f / invradius.y,
+                0.5f / invradius.z
+            );
+            set => invradius = new Vector3(
+                0.5f / value.x,
+                0.5f / value.y,
+                0.5f / value.z
+            );
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public NDArray forward(float x, float y, float z) => forward(new Vector3(x, y, z));
-
-        public NDArray forward(Vector3 indices, bool world = true)
-        {   
-            if (world)
-                indices = world2tree(indices);
-            
-            indices = indices.Clamp(0.0f, 1.0f - 1e-10f);
-
-            int node_id = 0;
-            Vector3 ind = indices;
-
-            for (int i = 0; i <= depth_limit; ++i)
-            {
-                ind *= N;
-                Vector3Int ind_floor = ind.FloorToInt();
-                ind_floor.Clamp(0, N - 1);
-                ind -= ind_floor;
-
-                int[] sel = new int[] { node_id, ind_floor.x, ind_floor.y, ind_floor.z };
-
-                int delta = child[sel];
-
-                if (delta == 0)
-                    return ((NDArray) data)[node_id, ind_floor.x, ind_floor.y, ind_floor.z, Slice.All];
-
-                node_id += delta;
-            }
-
-            throw new Exception();
+        public Vector3 Center
+        {
+            get => new Vector3(
+                (offset.x + 0.5f) * invradius.x,
+                (offset.y + 0.5f) * invradius.y,
+                (offset.z + 0.5f) * invradius.z
+            );
+            set => offset = new Vector3(
+                0.5f - value.x / invradius.x,
+                0.5f - value.y / invradius.y,
+                0.5f - value.z / invradius.z
+            );
         }
+
+        public IEnumerable<KeyValuePair<Vector3Int, float[]>> VoxelList
+        {
+            get { return GetVoxelList(0, -1, new Vector3Int(0, 0, 0)); }
+        }
+
+        // public IEnumerator<KeyValuePair<Vector3Int, float[]>> GetEnumerator() => VoxelList.GetEnumerator();
+
+        // IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        // public void Save(string path) => throw new NotImplementedException();
+
+        // public void Save(Stream stream) => throw new NotImplementedException();
 
         public static N3Tree Load(string path)
         {
@@ -74,14 +79,19 @@ namespace UnityNeRF.Editor
         {
             var tree = new N3Tree();
             using var z = new NpzFile(stream);
+
             tree.data_dim = (int) z.ReadInt64("data_dim.npy");
+
             tree.child = (NDArray<int>) z.ReadArray<int>("child.npy", out int[] shape);
             tree.child = tree.child.reshape(shape);
+
             tree.N = tree.child.shape[^1];
+
             tree.parent_depth = (NDArray<int>) z.ReadArray<int>("parent_depth.npy", out shape);
             tree.parent_depth = tree.parent_depth.reshape(shape);
-            // Debug.Log($"parent_depth.shape = {(NDArray<int>) tree.parent_depth.shape}");
+
             tree._n_internal = (int) z.ReadInt64("n_internal.npy");
+
             if (z.ContainsEntry("invradius3.npy")) {
                 float[] invradius = z.ReadArray<float>("invradius3.npy");
                 tree.invradius = new Vector3(invradius[0], invradius[1], invradius[2]);
@@ -89,14 +99,20 @@ namespace UnityNeRF.Editor
                 float invradius = z.ReadSingle("invradius.npy");
                 tree.invradius = new Vector3(invradius, invradius, invradius);
             }
+
             float[] offset = z.ReadArray<float>("offset.npy");
             tree.offset = new Vector3(offset[0], offset[1], offset[2]);
+
             tree.depth_limit = (int) z.ReadInt64("depth_limit.npy");
+
             // tree.geom_resize_fact = ...
+
             Half[] data = z.ReadArray<Half>("data.npy", out shape);
             tree.data = (NDArray<float>) data.Select(value => (float) value).ToArray();
             tree.data = tree.data.reshape(shape);
+
             // tree._n_free = ...
+
             if (z.ContainsEntry("data_format.npy"))
                 tree.data_format = DataFormat.Parse(z.ReadString("data_format.npy"));
             if (z.ContainsEntry("extra_data.npy"))
@@ -105,55 +121,28 @@ namespace UnityNeRF.Editor
             return tree;
         }
 
-        public Vector3 world2tree(Vector3 indices)
+        private IEnumerable<KeyValuePair<Vector3Int, float[]>> GetVoxelList(int nid, int depth, Vector3Int acc)
         {
-            float x = offset.x + indices.x * invradius.z;
-            float y = offset.y + indices.y * invradius.y;
-            float z = offset.z + indices.z * invradius.z;
+            for (int x = 0; x < N; ++x)
+            for (int y = 0; y < N; ++y)
+            for (int z = 0; z < N; ++z)
+            {
+                var index = N*acc + new Vector3Int(x, y, z);
 
-            return new Vector3(x, y, z);
+                if (depth == depth_limit - 1)
+                {
+                    float[] datum = ((NDArray) data)[nid, x, y, z].ToArray<float>();
+                    yield return KeyValuePair.Create(index, datum);
+                }
+
+                int skip = child.GetInt32(nid, x, y, z);
+                if (skip == 0) continue;
+
+                foreach (var voxel in GetVoxelList(nid + skip, depth + 1, index))
+                {
+                    yield return voxel;
+                }
+            }
         }
-
-        public Vector3 tree2world(Vector3 indices)
-        {
-            float x = (indices.x - offset.x) / invradius.x;
-            float y = (indices.y - offset.y) / invradius.y;
-            float z = (indices.z - offset.z) / invradius.z;
-
-            return new Vector3(x, y, z);
-        }
-
-        // public IEnumerator<N3TreeNode> GetEnumerator()
-        // {
-        //     throw new NotImplmentedException();
-        // }
-
-        // IEnumerator IEnumerable.GetEnumerator()
-        // {
-        //     throw new NotImplementedException();
-        // }
     }
-
-    // public readonly struct N3TreeNode
-    // {
-    //     public readonly N3Tree Tree;
-    //     public readonly int Key;
-
-    //     // public NDArray Corners => throw new NotImplementedException();
-
-    //     public NDArray CornersLocal => throw new NotImplementedException();
-
-    //     public readonly NDArray<float> Data =>
-    //         (NDArray<float>) ((NDArray) Tree.data)[Key, Slice.All];
-
-    //     public readonly int Depth => Tree.parent_depth[Key, 1];
-
-    //     public readonly bool IsInternal => Depth < Tree.depth_limit;
-
-    //     internal N3TreeNode(N3Tree tree, int key, (float, float, float) index)
-    //     {
-    //         Tree = tree;
-    //         Key = key;
-    //     }
-    // }
 }
