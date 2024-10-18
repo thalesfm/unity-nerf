@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace UnityNeRF
@@ -71,14 +72,14 @@ namespace UnityNeRF
 
         void InitNodeChildrenBuffer()
         {   
-            List<int> nodeChildren = _plenoctree.array.GetNodeChildren();
+            List<int> nodeChildren = _plenoctree.array.NodeChildrenBuffer.ToList();
             _nodeChildrenBuffer = new ComputeBuffer(nodeChildren.Count, sizeof(int));
             _nodeChildrenBuffer.SetData<int>(nodeChildren);
         }
 
         void InitNodeDataBuffer()
         {
-            List<float[]> nodeData = _plenoctree.array.GetNodeData();
+            List<float[]> nodeData = _plenoctree.array.NodeDataBuffer.ToList();
             List<float> nodeDataRaw = new List<float>(_plenoctree.format.data_dim * nodeData.Count);
 
             for (int i = 0; i < nodeData.Count; ++i) {

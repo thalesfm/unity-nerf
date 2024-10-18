@@ -23,7 +23,7 @@ namespace UnityNeRF.Editor
         private NDArray<int> parent_depth;
         private Vector3 invradius;
         private Vector3 offset;
-        private int _n_internal;
+        private int n_internal;
 
         private N3Tree()
         { }
@@ -90,7 +90,7 @@ namespace UnityNeRF.Editor
             tree.parent_depth = (NDArray<int>) z.ReadArray<int>("parent_depth.npy", out shape);
             tree.parent_depth = tree.parent_depth.reshape(shape);
 
-            tree._n_internal = (int) z.ReadInt64("n_internal.npy");
+            tree.n_internal = (int) z.ReadInt64("n_internal.npy");
 
             if (z.ContainsEntry("invradius3.npy")) {
                 float[] invradius = z.ReadArray<float>("invradius3.npy");

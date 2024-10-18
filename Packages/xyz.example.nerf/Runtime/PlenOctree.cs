@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace UnityNeRF
 {
@@ -52,12 +53,12 @@ namespace UnityNeRF
 
         public List<int> GetNodeChildren()
         {
-            return array.GetNodeChildren();
+            return array.NodeChildrenBuffer.ToList();
         }
 
         public List<float> GetNodeDataFlattened()
         {
-            List<float[]> nodeData = array.GetNodeData();
+            List<float[]> nodeData = array.NodeDataBuffer.ToList();
             List<float> nodeDataFlattened = new List<float>(format.data_dim * nodeData.Count);
 
             for (int i = 0; i < nodeData.Count; ++i)

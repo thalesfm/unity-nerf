@@ -1,17 +1,19 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using UnityEngine;
 
 namespace UnityNeRF
 {
     [Serializable]
-    public partial class SparseArray3D<T> : SparseArray3D, IEnumerable<KeyValuePair<(int, int, int), T>>
+    public partial class SparseArray3D<T> : SparseArray3D, IEnumerable<KeyValuePair<Vector3Int, T>>
     {
-        public /* readonly */ int Width;
-        public /* readonly */ int Height;
-        public /* readonly */ int Depth;
-
-        public /* readonly */ int MaxLevel;
+        public readonly int Width;
+        public readonly int Height;
+        public readonly int Depth;
+        public readonly int MaxLevel;
+        
         public List<int> _nodeChildren; // FIXME: Ideally should not be public
         public List<T> _nodeData;       // FIXME: Ideally should not be public
 
@@ -32,29 +34,12 @@ namespace UnityNeRF
             Clear();
         }
 
-        // public SparseArray3D(IEnumerable<KeyValuePair<(int, int, int), T>> collection)
-        // {
-        //     // TODO
-        //     throw new NotImplementedException();
-        // }
-
-        // [Conditional("UNITY_EDITOR")]
-        // public void Save(string path)
-        // {
-        //     using var stream = File.OpenWrite(path);
-        //     Save(stream);
-        // }
-
-        // [Conditional("UNITY_EDITOR")]
-        // public void Save(Stream stream)
-        // {
-        //     // WARNING: Unsafe! Replace ASAP
-        //     new BinaryFormatter().Serialize(stream, this);
-        // }
+        // public SparseArray3D(IEnumerable<KeyValuePair<Vector3Int, T>> collection) => throw new NotImplementedException();
 
         public T this[int x, int y, int z, int level = 0]
         {
-            get {
+            get
+            {
                 int nodeIndex = GetNodeIndex(x, y, z, level);
                 if (nodeIndex == -1) {
                     return default;
@@ -62,10 +47,33 @@ namespace UnityNeRF
                 return _nodeData[nodeIndex];
             }
 
-            set {
+            set
+            {
                 int nodeIndex = GetNodeIndex(x, y, z, level, true);
                 _nodeData[nodeIndex] = value;
             }
+        }
+
+        public ReadOnlyCollection<int> NodeChildrenBuffer
+        {
+            get { return _nodeChildren.AsReadOnly(); }
+        }
+
+        public ReadOnlyCollection<T> NodeDataBuffer
+        {
+            get { return _nodeData.AsReadOnly(); }
+        }
+
+        // IEnumerable<T> interface implementation
+
+        public IEnumerator<KeyValuePair<Vector3Int, T>> GetEnumerator()
+        {
+            return Enumerate(0, Vector3Int.zero, 0).GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
 
         public void Clear()
@@ -76,23 +84,6 @@ namespace UnityNeRF
             AddNode();
         }
 
-        public void Remove(int x, int y, int z)
-        {
-            // TODO
-        }
-
-        // HACK
-        public List<int> GetNodeChildren()
-        {
-            return _nodeChildren;
-        }
-
-        // HACK
-        public List<T> GetNodeData()
-        {
-            return _nodeData;
-        }
-
         private int AddNode()
         {
             int nodeIndex = _nodeData.Count;
@@ -101,6 +92,14 @@ namespace UnityNeRF
             _nodeData.Add(default);
 
             return nodeIndex;
+        }
+
+        // private void Add(Vector3Int index, T value)
+
+        private void AddRange(IEnumerable<KeyValuePair<Vector3Int, T>> collection)
+        {
+            foreach ((Vector3Int index, T value) in collection)
+                this[index.x, index.y, index.z] = value;
         }
 
         private bool IndexWithinRange(int x, int y, int z)
@@ -149,18 +148,11 @@ namespace UnityNeRF
             return nodeIndex;
         }
 
-        public IEnumerator<KeyValuePair<(int, int, int), T>> GetEnumerator()
-        {
-            return Entries.GetEnumerator();
-        }
-
-        public IEnumerable<KeyValuePair<(int, int, int), T>> Entries => GetEntriesRecursive(0, (0, 0, 0), 0);
-
-        private IEnumerable<KeyValuePair<(int, int, int), T>> GetEntriesRecursive(int nodeIndex, (int, int, int) acc, int level)
+        private IEnumerable<KeyValuePair<Vector3Int, T>> Enumerate(int index, Vector3Int acc, int level)
         {
             if (level == MaxLevel) // Leaf node
             {
-                yield return KeyValuePair.Create(acc, _nodeData[nodeIndex]);
+                yield return KeyValuePair.Create(acc, _nodeData[index]);
                 yield break;
             }
 
@@ -168,19 +160,17 @@ namespace UnityNeRF
             for (int qy = 0; qy < 2; ++qy)
             for (int qz = 0; qz < 2; ++qz)
             {
-                int childId = _nodeChildren[8*nodeIndex + 4*qz + 2*qy + qx];
+                int childId = _nodeChildren[8*index + 4*qz + 2*qy + qx];
                 if (childId == -1)
                     continue;
                 
-                int x = 2 * acc.Item1 + qx;
-                int y = 2 * acc.Item2 + qy;
-                int z = 2 * acc.Item3 + qz;
+                int x = 2 * acc.x + qx;
+                int y = 2 * acc.y + qy;
+                int z = 2 * acc.z + qz;
 
-                foreach (var entry in GetEntriesRecursive(childId, (x, y, z), level + 1))
+                foreach (var entry in Enumerate(childId, new Vector3Int(x, y, z), level + 1))
                     yield return entry;
             }
         }
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 } // namespace UnityNeRF
