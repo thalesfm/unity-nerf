@@ -6,7 +6,6 @@ using UnityEngine;
 using NumSharp;
 using NumSharp.Generic;
 using UnityNeRF.Editor.IO;
-using System.Collections;
 
 namespace UnityNeRF.Editor
 {

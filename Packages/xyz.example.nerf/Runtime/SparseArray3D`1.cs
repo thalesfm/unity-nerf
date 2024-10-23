@@ -56,12 +56,12 @@ namespace UnityNeRF
 
         public ReadOnlyCollection<int> NodeChildrenBuffer
         {
-            get { return _nodeChildren.AsReadOnly(); }
+            get => _nodeChildren.AsReadOnly();
         }
 
         public ReadOnlyCollection<T> NodeDataBuffer
         {
-            get { return _nodeData.AsReadOnly(); }
+            get => _nodeData.AsReadOnly();
         }
 
         // IEnumerable<T> interface implementation
