@@ -9,24 +9,42 @@ namespace UnityNeRF
     [RequireComponent(typeof(MeshRenderer))]
     public class PlenOctreeRenderer : MonoBehaviour
     {
+
         public PlenOctree _plenoctree;
 
         private Material _material;
         private ComputeBuffer _nodeChildrenBuffer;
         private ComputeBuffer _nodeDataBuffer;
 
+        // The following works during Play Mode, but not during Edit Mode:
+        // [UnityEditor.Callbacks.DidReloadScripts]
+        // static void OnDidReloadScripts()
+        // {
+        //     PlenOctreeRenderer[] renderers =
+        //         FindObjectsByType<PlenOctreeRenderer>(FindObjectsSortMode.None);
+        //     foreach (var renderer in renderers) {
+        //         renderer.Init();
+        //     }
+        // }
+
+        void Awake()
+        {
+            MaybeInitialize();
+        }
+
         void Update()
         {
             // It might be neccessary to re-initialize this component when running in Edit Mode
             // in case of a scene or script reload.
             if (!Application.IsPlaying(gameObject)) {
-                Init();
+                MaybeInitialize();
             }
-        }
-
-        void Awake()
-        {
-            Init();
+            
+            // The following doesn't work for some reason:
+            // if (_nodeChildrenBuffer == null || !_nodeChildrenBuffer.IsValid()) {
+            //     Debug.Log("Buffers missing/invalid; re-initializing");
+            //     Init();
+            // }
         }
 
         void OnDisable()
@@ -50,34 +68,35 @@ namespace UnityNeRF
                 _nodeDataBuffer = null;
             }
 
+            // FIXME: Probably leaks when in editor mode!
             _material = null;
         }
 
-        void Init()
+        void MaybeInitialize()
         {
             if (_nodeChildrenBuffer == null) {
-                InitNodeChildrenBuffer();
+                InitializeNodeChildrenBuffer();
             }
 
             if (_nodeDataBuffer == null) {
-                InitNodeDataBuffer();
+                InitializeNodeDataBuffer();
             }
 
             // When running in Edit Mode, some events may cause the material to
             // lose its current properties, in which case it has to be re-initialized.
-            if (_material == null || !_material.HasProperty("_Width")) {
-                InitMaterial();
+            if (_material == null || !_material.HasProperty("_SVOWidth")) {
+                InitializeMaterial();
             }
         }
 
-        void InitNodeChildrenBuffer()
+        void InitializeNodeChildrenBuffer()
         {   
             List<int> nodeChildren = _plenoctree.array.NodeChildrenBuffer.ToList();
             _nodeChildrenBuffer = new ComputeBuffer(nodeChildren.Count, sizeof(int));
-            _nodeChildrenBuffer.SetData<int>(nodeChildren);
+            _nodeChildrenBuffer.SetData(nodeChildren);
         }
 
-        void InitNodeDataBuffer()
+        void InitializeNodeDataBuffer()
         {
             List<float[]> nodeData = _plenoctree.array.NodeDataBuffer.ToList();
             List<float> nodeDataRaw = new List<float>(_plenoctree.format.data_dim * nodeData.Count);
@@ -93,16 +112,17 @@ namespace UnityNeRF
             }
 
             _nodeDataBuffer = new ComputeBuffer(nodeDataRaw.Count, sizeof(float));
-            _nodeDataBuffer.SetData<float>(nodeDataRaw);
+            _nodeDataBuffer.SetData(nodeDataRaw);
         }
 
-        void InitMaterial()
+        void InitializeMaterial()
         {
             if (_plenoctree == null || _nodeChildrenBuffer == null || _nodeDataBuffer == null) {
                 return;
             }
 
             if (_material == null) {
+                // TODO: Double-check that doing this makes sense
                 _material = GetComponent<MeshRenderer>().sharedMaterial;
             }
 

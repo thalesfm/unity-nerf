@@ -165,7 +165,10 @@
       "version": "file:xyz.example.nerf",
       "depth": 0,
       "source": "embedded",
-      "dependencies": {}
+      "dependencies": {
+        "com.unity.render-pipelines.core": "14.0.10",
+        "com.unity.render-pipelines.universal": "14.0.10"
+      }
     },
     "com.unity.modules.ai": {
       "version": "1.0.0",

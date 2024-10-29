@@ -1,6 +1,10 @@
 {
-    "name": "xyz.example.nerf",
-    "version": "0.0.1",
-    "displayName": "Real-Time NeRF",
-    "unity": "2022.3"
+  "name": "xyz.example.nerf",
+  "version": "0.0.1",
+  "displayName": "Real-Time NeRF",
+  "unity": "2022.3",
+  "dependencies": {
+    "com.unity.render-pipelines.core": "14.0.10",
+    "com.unity.render-pipelines.universal": "14.0.10"
   }
+}

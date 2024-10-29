@@ -7,6 +7,12 @@ Shader "Unlit/RadianceField"
 
         // TODO: Remove
         [HideInInspector] _Scale("Scale", Float) = 1.0
+        // [HideInInspector] _SVOWidth("", Integer) = 0
+        // [HideInInspector] _SVOHeight("", Integer) = 0
+        // [HideInInspector] _SVODepth("", Integer) = 0
+        // [HideInInspector] _SVOBasisDim("", Integer) = 0
+        // [HideInInspector] _SVODataDim("", Integer) = 0
+        // [HideInInspector] _SVOMaxLevel("", Integer) = 0
     }
 
     SubShader
@@ -30,7 +36,7 @@ Shader "Unlit/RadianceField"
             }
 
             HLSLPROGRAM
-            #pragma target 2.0
+            #pragma target 4.5
 
             #pragma vertex ForwardPassVertex
             #pragma fragment ForwardPassFragment
@@ -48,7 +54,7 @@ Shader "Unlit/RadianceField"
             }
 
             HLSLPROGRAM
-            #pragma target 2.0
+            #pragma target 4.5
             
             #pragma vertex ShadowPassVertex
             #pragma fragment ShadowPassFragment
