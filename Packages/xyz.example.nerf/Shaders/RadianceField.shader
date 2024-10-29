@@ -7,12 +7,12 @@ Shader "Unlit/RadianceField"
 
         // TODO: Remove
         [HideInInspector] _Scale("Scale", Float) = 1.0
-        // [HideInInspector] _SVOWidth("", Integer) = 0
-        // [HideInInspector] _SVOHeight("", Integer) = 0
-        // [HideInInspector] _SVODepth("", Integer) = 0
-        // [HideInInspector] _SVOBasisDim("", Integer) = 0
-        // [HideInInspector] _SVODataDim("", Integer) = 0
-        // [HideInInspector] _SVOMaxLevel("", Integer) = 0
+        // [HideInInspector] _SVOWidth("a", Integer) = 0
+        // [HideInInspector] _SVOHeight("b", Integer) = 0
+        // [HideInInspector] _SVODepth("c", Integer) = 0
+        // [HideInInspector] _SVOBasisDim("d", Integer) = 0
+        // [HideInInspector] _SVODataDim("e", Integer) = 0
+        // [HideInInspector] _SVOMaxLevel("f", Integer) = 0
     }
 
     SubShader

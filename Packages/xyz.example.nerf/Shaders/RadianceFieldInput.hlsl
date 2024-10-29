@@ -5,17 +5,17 @@
 #include "Packages/xyz.example.nerf/ShaderLibrary/SparseVoxelOctree.hlsl"
 
 CBUFFER_START(UnityPerMaterial)
-float _Treshold;
-float _MinTransmittance;
-float _Scale;
-int _SVOWidth;
-int _SVOHeight;
-int _SVODepth;
-int _SVOBasisDim;
-int _SVODataDim;
-int _SVOMaxLevel;
-StructuredBuffer<int> _SVONodeChildren;
-StructuredBuffer<float> _SVONodeData;
+    float _Treshold;
+    float _MinTransmittance;
+    float _Scale;
+    int _SVOWidth;
+    int _SVOHeight;
+    int _SVODepth;
+    int _SVOBasisDim;
+    int _SVODataDim;
+    int _SVOMaxLevel;
+    StructuredBuffer<int> _SVONodeChildren;
+    StructuredBuffer<float> _SVONodeData;
 CBUFFER_END
 
 SparseVoxelOctree GetSparseVoxelOctree()
