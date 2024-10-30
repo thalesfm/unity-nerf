@@ -88,9 +88,9 @@ half4 ShadowPassFragment(Varyings input, out float depth : SV_Depth) : SV_Target
         finalDepth *= 1.0 / (1.0 - transmittance);
     }
 
-    if (transmittance > _Treshold) {
-        discard;
-    }
+#if defined(_ALPHATEST_ON)
+    clip(1.0 - transmittance - _Cutoff);
+#endif
 
     float3 finalPositionOS = input.rayOriginOS + finalDepth * normalize(input.unRayDirectionOS);
     depth = ComputeDepth(finalPositionOS);

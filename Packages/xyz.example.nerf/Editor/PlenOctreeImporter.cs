@@ -7,7 +7,7 @@ namespace UnityNeRF.Editor
     [ScriptedImporter(version: 1, ext: "npz")]
     public class PlenOctreeImporter : ScriptedImporter
     {
-        private const string MaterialPath = "Packages/xyz.example.nerf/Materials/UnlitRadianceField.mat";
+        private const string MaterialPath = "Packages/xyz.example.nerf/Materials/RadianceFieldTransparent.mat";
 
         public int MaxLevel = 10;
 

@@ -92,9 +92,10 @@ half4 ForwardPassFragment(Varyings input, out float depth : SV_Depth) : SV_Targe
         finalDepth *= 1.0 / (1.0 - transmittance);
     }
 
-    if (transmittance > _Treshold) {
-        discard;
-    }
+    // alpha = AlphaDiscard(alpha, _Cutoff);
+#if _ALPHATEST_ON
+    clip(1.0 - transmittance - _Cutoff);
+#endif
 
     float3 finalPositionOS = input.rayOriginOS + finalDepth * normalize(input.unRayDirectionOS);
     depth = ComputeDepth(finalPositionOS);

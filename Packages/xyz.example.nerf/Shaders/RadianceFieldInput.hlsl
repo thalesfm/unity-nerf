@@ -5,7 +5,7 @@
 #include "Packages/xyz.example.nerf/ShaderLibrary/SparseVoxelOctree.hlsl"
 
 CBUFFER_START(UnityPerMaterial)
-    float _Treshold;
+    float _Cutoff;
     float _MinTransmittance;
     float _Scale;
     int _SVOWidth;
