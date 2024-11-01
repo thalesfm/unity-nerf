@@ -2,7 +2,9 @@
     "name": "MyCompany.UnityNeRF.Editor",
     "rootNamespace": "",
     "references": [
-        "GUID:51b1a44553e2afa48916aa120a513f93"
+        "GUID:51b1a44553e2afa48916aa120a513f93",
+        "GUID:df380645f10b7bc4b97d4f5eb6303d95",
+        "GUID:3eae0364be2026648bf74846acb8a731"
     ],
     "includePlatforms": [
         "Editor"

@@ -4,10 +4,13 @@
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 #include "Packages/xyz.example.nerf/ShaderLibrary/SparseVoxelOctree.hlsl"
 
+#define _Scale 0.5
+#define STEP_SIZE 0.003
+#define MAX_STEPS 1000
+
 CBUFFER_START(UnityPerMaterial)
     float _Cutoff;
     float _MinTransmittance;
-    float _Scale;
     int _SVOWidth;
     int _SVOHeight;
     int _SVODepth;

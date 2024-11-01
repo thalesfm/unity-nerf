@@ -20,7 +20,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: RadianceFieldTransparent
+  m_Name: RadianceField
   m_Shader: {fileID: 4800000, guid: 001608145e28a514bb555e2d9d4f01b2, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -30,7 +30,8 @@ Material:
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: 3000
-  stringTagMap: {}
+  stringTagMap:
+    RenderType: Transparent
   disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
@@ -38,11 +39,12 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
+    - _AlphaClip: 0
+    - _Cutoff: 0.5
     - _DstBlend: 10
     - _MinTransmittance: 0.05
-    - _Scale: 0.5
+    - _RenderMode: 1
     - _SrcBlend: 5
-    - _Treshold: 1
     - _ZWrite: 1
     m_Colors: []
   m_BuildTextureStacks: []

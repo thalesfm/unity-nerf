@@ -2,12 +2,10 @@
 #define SHADOW_CASTER_PASS_INCLUDED
 
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+// #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
 #include "Packages/xyz.example.nerf/ShaderLibrary/AxisAlignedBoundingBox.hlsl"
 #include "Packages/xyz.example.nerf/ShaderLibrary/SphericalHarmonics.hlsl"
 #include "Packages/xyz.example.nerf/ShaderLibrary/Matrix.hlsl"
-
-#define STEP_SIZE 0.003
-#define MAX_STEPS 1000
 
 struct Attributes
 {

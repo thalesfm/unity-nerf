@@ -2,11 +2,9 @@
 #define UNIVERSAL_FORWARD_PASS_INCLUDED
 
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 #include "Packages/xyz.example.nerf/ShaderLibrary/AxisAlignedBoundingBox.hlsl"
 #include "Packages/xyz.example.nerf/ShaderLibrary/SphericalHarmonics.hlsl"
-
-#define STEP_SIZE 0.003
-#define MAX_STEPS 1000
 
 struct Attributes
 {
@@ -18,6 +16,14 @@ struct Varyings
     float4 positionHCS                    : SV_POSITION;
     noperspective float3 rayOriginOS      : TEXCOORD0;
     noperspective float3 unRayDirectionOS : TEXCOORD1;
+
+// #if defined(REQUIRES_WORLD_SPACE_POS_INTERPOLATOR)
+//     float3 rayOriginWS                    : TEXCOORD2;
+// #endif
+
+// #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
+//     float4 shadowCoord                    : TEXCOORD3;
+// #endif
 };
 
 Varyings ForwardPassVertex(Attributes input)
@@ -30,6 +36,15 @@ Varyings ForwardPassVertex(Attributes input)
     float3 rayTargetWS = ComputeWorldSpacePosition(positionNDC, UNITY_RAW_FAR_CLIP_VALUE, UNITY_MATRIX_I_VP);
     float3 rayTargetOS = TransformWorldToObject(rayTargetWS);
     output.unRayDirectionOS = rayTargetOS - output.rayOriginOS;
+
+// #if defined(REQUIRES_WORLD_SPACE_POS_INTERPOLATOR)
+//     output.rayOriginWS = rayOriginWS;
+// #endif
+
+// #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
+//     output.shadowCoord = TransformWorldToShadowCoord(rayOriginWS);
+// #endif
+
     return output;
 }
 
@@ -42,6 +57,14 @@ half4 ForwardPassFragment(Varyings input, out float depth : SV_Depth) : SV_Targe
     // Transform from Unity's coordinate frame (XZY) to XYZ
     rayDirectionOS = rayDirectionOS.xzy;
     positionOS = positionOS.xzy;
+
+// #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
+//     float4 shadowCoord = input.shadowCoord;
+// #elif defined(MAIN_LIGHT_CALCULATE_SHADOWS)
+//     float4 shadowCoord = TransformWorldToShadowCoord(input.rayOriginWS);
+// #else
+//     float4 shadowCoord = float4(0, 0, 0, 0);
+// #endif
 
     float t;
     if (IntersectPointBox(positionOS / _Scale)) {
