@@ -2,6 +2,7 @@
 #define INPUT_INCLUDED
 
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+// #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/SurfaceInput.hlsl"
 #include "Packages/xyz.example.nerf/ShaderLibrary/SparseVoxelOctree.hlsl"
 
 #define _Scale 0.5

@@ -1,8 +1,8 @@
 #ifndef SHADOW_CASTER_PASS_INCLUDED
 #define SHADOW_CASTER_PASS_INCLUDED
 
+// #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Random.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-// #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
 #include "Packages/xyz.example.nerf/ShaderLibrary/AxisAlignedBoundingBox.hlsl"
 #include "Packages/xyz.example.nerf/ShaderLibrary/SphericalHarmonics.hlsl"
 #include "Packages/xyz.example.nerf/ShaderLibrary/Matrix.hlsl"
@@ -86,13 +86,20 @@ half4 ShadowPassFragment(Varyings input, out float depth : SV_Depth) : SV_Target
         finalDepth *= 1.0 / (1.0 - transmittance);
     }
 
+    half alpha = 1.0 - transmittance;
+
 #if defined(_ALPHATEST_ON)
-    clip(1.0 - transmittance - _Cutoff);
+    clip(alpha - _Cutoff);
+#elif defined(_SEMITRANSPARENT_SHADOWS)
+    // half dither = tex3D(_DitherMaskLOD, float3(input.positionHCS.xy * 0.25, alpha * 0.9375)).a;
+    // clip(dither - 0.01);
+    half dither = InterleavedGradientNoise(input.positionHCS.xy, 0);
+    clip(alpha - dither);
 #endif
 
     float3 finalPositionOS = input.rayOriginOS + finalDepth * normalize(input.unRayDirectionOS);
     depth = ComputeDepth(finalPositionOS);
-    return half4(1.0, 0.0, 1.0, 1.0);
+    return 0.0;
 }
 
 #endif // SHADOW_CASTER_PASS_INCLUDED

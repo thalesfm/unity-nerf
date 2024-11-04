@@ -45,6 +45,6 @@ Material:
     - _MinTransmittance: 0.05
     - _RenderMode: 1
     - _SrcBlend: 5
-    - _ZWrite: 1
+    - _ZWrite: 0
     m_Colors: []
   m_BuildTextureStacks: []

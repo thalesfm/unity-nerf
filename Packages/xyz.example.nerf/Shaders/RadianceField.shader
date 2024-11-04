@@ -3,6 +3,7 @@ Shader "Universal Render Pipeline/Radiance Field"
     Properties
     {
         _Cutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
+        // _AlphaCutoffShadow("_AlphaCutoffShadow", Range(0.0, 1.0)) = 0.5
 
         _RenderMode("Rendering Mode", Float) = 0.0
         // _Blend("Blend", Float) = 0.0
@@ -14,11 +15,12 @@ Shader "Universal Render Pipeline/Radiance Field"
         // [HideInInspector] _DstBlendAlpha("Dst Blend Alpha", Float) = 0.0
 		/* [Enum(Off, 0, On, 1)] */ [HideInInspector] _ZWrite ("_ZWrite", Float) = 1.0
         // [HideInInspector] [Toggle] _BlendModePreserveSpecular("_BlendModePreserveSpecular", Float) = 1.0
-        // [HideInInspector] _AlphaToMask("Alpha to Mask", Float) = 0.0
+        // [HideInInspector] _AlphaToMask("_AlphaToMask", Float) = 0.0
 
         // [ToggleUI] _ReceiveShadows("Receive Shadows", Float) = 1.0
 
         _MinTransmittance("Min. Transmittance", Range(0.0, 1.0)) = 0.05
+        [Toggle] _SemitransparentShadows("Semitransparent Shadows", Float) = 1.0
     }
 
     SubShader
@@ -35,6 +37,7 @@ Shader "Universal Render Pipeline/Radiance Field"
         Blend [_SrcBlend] [_DstBlend]
         ZWrite [_ZWrite]
         Cull Front
+        // AlphaToMask [_AlphaToMask]
 
         Pass
         {
@@ -64,17 +67,19 @@ Shader "Universal Render Pipeline/Radiance Field"
             }
 
             ZWrite On
-            // ZTest LEqual
+            ZTest LEqual
             ColorMask 0
             // Cull [_Cull]
 
             HLSLPROGRAM
             #pragma target 4.5
 
-            #define _ALPHATEST_ON 1
-            
             #pragma vertex ShadowPassVertex
             #pragma fragment ShadowPassFragment
+
+            // #define _ALPHABLEND_ON
+            #pragma shader_feature_local_fragment _ALPHATEST_ON
+            #pragma shader_feature_local_fragment _SEMITRANSPARENT_SHADOWS
 
             #include "Packages/xyz.example.nerf/Shaders/RadianceFieldInput.hlsl"
             #include "Packages/xyz.example.nerf/Shaders/RadianceFieldShadowCasterPass.hlsl"

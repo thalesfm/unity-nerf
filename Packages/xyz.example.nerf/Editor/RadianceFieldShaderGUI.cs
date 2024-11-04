@@ -18,13 +18,27 @@ namespace UnityNeRF
         {
             get
             {
-                MaterialProperty property = FindProperty("_AlphaClip", properties);
-                return property.floatValue == 1.0f;
+                MaterialProperty prop = FindProperty("_AlphaClip", properties);
+                return prop.floatValue == 1.0f;
             }
             set
             {
                 SetProperty("_AlphaClip", value ? 1.0f : 0.0f);
-                SetKeyWord("_ALPHATEST_ON", value);
+                SetKeyword("_ALPHATEST_ON", value);
+            }
+        }
+
+        bool SemitransparentShadows
+        {
+            get
+            {
+                MaterialProperty prop = FindProperty("_SemitransparentShadows", properties);
+                return prop.floatValue == 1.0f;
+            }
+            set
+            {
+                SetProperty("_SemitransparentShadows", value ? 1.0f : 0.0f);
+                SetKeyword("_SEMITRANSPARENT_SHADOWS", value);
             }
         }
 
@@ -57,6 +71,8 @@ namespace UnityNeRF
             MaterialProperty renderModeProp = FindProperty("_RenderMode", properties);
             // MaterialProperty blendProp = FindProperty("_Blend", properties);
             // MaterialProperty preserveSpecularProp = FindProperty("_BlendModePreserveSpecular", properties);
+            // MaterialProperty alphaToMaskProp = FindProperty("_AlphaToMask", properties);
+            MaterialProperty semitranspShadowsProp = FindProperty("_SemitransparentShadows", properties);
 
             // materialEditor.ShaderProperty(renderModeProp, renderModeProp.displayName);
             RenderMode renderMode = (RenderMode)materialEditor.PopupShaderProperty(
@@ -98,6 +114,15 @@ namespace UnityNeRF
 
             EditorGUILayout.LabelField("Advanced", EditorStyles.boldLabel);
             materialEditor.ShaderProperty(minTransmittance, minTransmittance.displayName);
+
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.BeginDisabledGroup(renderMode == RenderMode.Opaque);
+            materialEditor.ShaderProperty(semitranspShadowsProp, semitranspShadowsProp.displayName);
+            EditorGUI.EndDisabledGroup();
+            if (EditorGUI.EndChangeCheck())
+            {
+                SemitransparentShadows = semitranspShadowsProp.floatValue == 1.0f;
+            }
         }
 
         // MaterialProperty GetProperty(string name)
@@ -114,7 +139,7 @@ namespace UnityNeRF
             property.floatValue = value;
         }
 
-        void SetKeyWord(string name, bool enabled)
+        void SetKeyword(string name, bool enabled)
         {
             CoreUtils.SetKeyword(material, name, enabled);
         }
