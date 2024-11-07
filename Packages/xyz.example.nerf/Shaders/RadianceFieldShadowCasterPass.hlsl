@@ -21,8 +21,8 @@ struct Varyings
 
 Varyings ShadowPassVertex(Attributes input)
 {
-    float4x4 inverseModel = inverse(UNITY_MATRIX_M);
-    float4x4 inverseViewProj = inverse(UNITY_MATRIX_VP);
+    float4x4 inverseModel = UNITY_MATRIX_I_M;
+    float4x4 inverseViewProj = inverse(UNITY_MATRIX_VP); // FIXME
     
     Varyings output;
     output.positionHCS = TransformObjectToHClip(input.positionOS.xyz);
