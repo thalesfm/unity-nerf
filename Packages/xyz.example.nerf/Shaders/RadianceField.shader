@@ -43,7 +43,7 @@ Shader "Universal Render Pipeline/Radiance Field"
         {
             Tags
             {
-                "LightMode" = "UniversalForward"
+                "LightMode" = "Volumetric"
             }
 
             HLSLPROGRAM

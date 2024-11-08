@@ -598,6 +598,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -2698059151789161102, guid: 1c8993d069c9e2e42be32812c696fc84,
         type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 1024
+      objectReference: {fileID: 0}
+    - target: {fileID: -2698059151789161102, guid: 1c8993d069c9e2e42be32812c696fc84,
+        type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 392be6b6b3ad7104d91a61bd26686490, type: 2}
@@ -605,6 +610,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: lego_sh9
+      objectReference: {fileID: 0}
+    - target: {fileID: 214428876452384659, guid: 1c8993d069c9e2e42be32812c696fc84,
+        type: 3}
+      propertyPath: m_Layer
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 214428876452384659, guid: 1c8993d069c9e2e42be32812c696fc84,
         type: 3}

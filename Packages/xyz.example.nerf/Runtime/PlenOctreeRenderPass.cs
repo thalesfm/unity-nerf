@@ -9,7 +9,7 @@ namespace UnityNeRF
 {
     class PlenOctreeRenderPass : ScriptableRenderPass
     {
-        private static readonly ShaderTagId shaderTagId = new("UniversalForward");
+        private static readonly ShaderTagId shaderTagId = new("Volumetric");
 
         private PlenOctreeRenderSettings settings;
         private bool transparent;
@@ -51,54 +51,24 @@ namespace UnityNeRF
 
             DrawingSettings drawingSettings = CreateDrawingSettings(shaderTagId, ref renderingData, sortingCriteria);
 
-            ref CameraData cameraData = ref renderingData.cameraData;
-            Camera camera = cameraData.camera;
-
-            // Culling with the proper layer mask doesn't seem to be necessary...
-            // if (!TryCull(context, camera, out CullingResults cullResults))
-            //     return;
-            CullingResults cullResults = renderingData.cullResults;
-
             RenderQueueRange renderQueueRange = transparent
                 ? RenderQueueRange.transparent
                 : RenderQueueRange.opaque;
-            var filterSettings = new FilteringSettings(renderQueueRange)
-            {
-                layerMask = settings.layerMask,
-            };
+            var filterSettings = new FilteringSettings(renderQueueRange);
 
             CommandBuffer cmd = CommandBufferPool.Get("PlenOctreeRenderPass");
-            // CommandBuffer cmd = renderingData.commandBuffer;
             using (new ProfilingScope(cmd, profilingSampler))
             {
                 // Flush command-buffer before rendering
                 // context.ExecuteCommandBuffer(cmd);
                 // cmd.Clear();
 
-                context.DrawRenderers(cullResults, ref drawingSettings, ref filterSettings);
+                context.DrawRenderers(renderingData.cullResults, ref drawingSettings, ref filterSettings);
 
                 // Execute the command buffer and release it back to the pool.
                 context.ExecuteCommandBuffer(cmd);
                 CommandBufferPool.Release(cmd);
             }
-        }
-
-        private bool TryCull(ScriptableRenderContext context, Camera camera, out CullingResults cullResults)
-        {
-            // LayerMask cullingMask = camera.cullingMask;
-            // camera.cullingMask = settings.layerMask;
-            bool success = camera.TryGetCullingParameters(out ScriptableCullingParameters parameters);
-            // camera.cullingMask = cullingMask;
-
-            if (!success)
-            {
-                cullResults = new CullingResults();
-                return false;
-            }
-
-            parameters.cullingMask = (uint)settings.layerMask.value;
-            cullResults = context.Cull(ref parameters);
-            return true;
         }
     }
 }

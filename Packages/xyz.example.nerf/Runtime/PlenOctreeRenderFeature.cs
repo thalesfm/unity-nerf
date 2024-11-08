@@ -11,7 +11,6 @@ namespace UnityNeRF
     [Serializable]
     public class PlenOctreeRenderSettings
     {
-        public LayerMask layerMask = (LayerMask)0;
         // public int maxSteps;
         // public int stepSize;
         // public bool semitransparentShadows;
@@ -20,7 +19,8 @@ namespace UnityNeRF
     [DisallowMultipleRendererFeature("PlenOctree Rendering")]
     public class PlenOctreeRenderFeature : ScriptableRendererFeature
     {
-        [SerializeField] private PlenOctreeRenderSettings settings = new();
+        [SerializeField]
+        private PlenOctreeRenderSettings settings = new();
 
         private PlenOctreeRenderPass opaqueRenderPass;
         private PlenOctreeRenderPass transparentRenderPass;
