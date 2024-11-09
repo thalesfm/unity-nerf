@@ -1,5 +1,4 @@
 using System;
-using Codice.CM.Common.Matcher;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -7,33 +6,26 @@ using UnityEngine.Rendering.Universal;
 
 namespace UnityNeRF
 {
-    class PlenOctreeRenderPass : ScriptableRenderPass
+    class DrawVolumetricsPass : ScriptableRenderPass
     {
         private static readonly ShaderTagId shaderTagId = new("Volumetric");
 
-        private PlenOctreeRenderSettings settings;
+        private VolumetricRenderSettings settings;
         private bool transparent;
         // private ScriptableRenderer renderer;
-        private new ProfilingSampler profilingSampler = new(nameof(PlenOctreeRenderPass));
+        private new ProfilingSampler profilingSampler = new(nameof(DrawVolumetricsPass));
 
-        public PlenOctreeRenderPass(PlenOctreeRenderSettings settings, bool transparent)
+        public DrawVolumetricsPass(VolumetricRenderSettings settings, bool transparent)
         {
             this.settings = settings;
             this.transparent = transparent;
         }
 
-        public void Dispose()
+        public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
         {
-            // CoreUtils.Destroy(errorMaterial);
+            cmd.SetGlobalInt("_MaxSteps", settings.MaxSteps);
+            cmd.SetGlobalFloat("_StepSize", settings.StepSize);
         }
-
-        internal void Setup(ref ScriptableRenderer renderer)
-        {
-            // this.renderer = renderer;
-        }
-
-        // public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
-        // { }
 
         // public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         // {
@@ -45,6 +37,7 @@ namespace UnityNeRF
 
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
+
             SortingCriteria sortingCriteria = transparent
                 ? SortingCriteria.CommonTransparent
                 : renderingData.cameraData.defaultOpaqueSortFlags;

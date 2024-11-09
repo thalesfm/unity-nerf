@@ -20,7 +20,6 @@ Shader "Universal Render Pipeline/Radiance Field"
         // [ToggleUI] _ReceiveShadows("Receive Shadows", Float) = 1.0
 
         _MinTransmittance("Min. Transmittance", Range(0.0, 1.0)) = 0.05
-        [Toggle] _SemitransparentShadows("Semitransparent Shadows", Float) = 1.0
     }
 
     SubShader
@@ -33,7 +32,6 @@ Shader "Universal Render Pipeline/Radiance Field"
             "IgnoreProjector" = "True"
         }
 
-        // Blend SrcAlpha OneMinusSrcAlpha
         Blend [_SrcBlend] [_DstBlend]
         ZWrite [_ZWrite]
         Cull Front
@@ -45,6 +43,7 @@ Shader "Universal Render Pipeline/Radiance Field"
             {
                 "LightMode" = "Volumetric"
             }
+            // Name "Volumetric"
 
             HLSLPROGRAM
             #pragma target 4.5
@@ -77,9 +76,9 @@ Shader "Universal Render Pipeline/Radiance Field"
             #pragma vertex ShadowPassVertex
             #pragma fragment ShadowPassFragment
 
-            // #define _ALPHABLEND_ON
             #pragma shader_feature_local_fragment _ALPHATEST_ON
-            #pragma shader_feature_local_fragment _SEMITRANSPARENT_SHADOWS
+            #pragma multi_compile_fragment _ RADIANCE_FIELDS_SEMITRANSPARENT_SHADOWS_ON
+            // UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS
 
             #include "Packages/xyz.example.nerf/Shaders/RadianceFieldInput.hlsl"
             #include "Packages/xyz.example.nerf/Shaders/RadianceFieldShadowCasterPass.hlsl"
@@ -88,5 +87,5 @@ Shader "Universal Render Pipeline/Radiance Field"
     }
 
     FallBack "Hidden/Universal Render Pipeline/FallbackError"
-    CustomEditor "UnityNeRF.RadianceFieldShaderGUI"
+    CustomEditor "UnityNeRF.Editor.RadianceFieldShaderGUI"
 }

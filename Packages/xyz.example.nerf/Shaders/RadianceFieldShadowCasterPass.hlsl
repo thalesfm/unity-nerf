@@ -29,6 +29,7 @@ Varyings ShadowPassVertex(Attributes input)
     float2 positionNDC = ComputeNormalizedDeviceCoordinates(output.positionHCS.xyz / output.positionHCS.w);
     float3 rayOriginWS = ComputeWorldSpacePosition(positionNDC, UNITY_NEAR_CLIP_VALUE, inverseViewProj);
     output.rayOriginOS = mul(inverseModel, float4(rayOriginWS, 1.0)).xyz;
+    // output.rayOriginOS = input.positionOS.xyz;
     float3 rayTargetWS = ComputeWorldSpacePosition(positionNDC, UNITY_RAW_FAR_CLIP_VALUE, inverseViewProj);
     float3 rayTargetOS = mul(inverseModel, float4(rayTargetWS, 1.0)).xyz;
     output.unRayDirectionOS = rayTargetOS - output.rayOriginOS;
@@ -61,9 +62,9 @@ half4 ShadowPassFragment(Varyings input, out float depth : SV_Depth) : SV_Target
     float transmittance = 1.0;
     float finalDepth = 0.0;
 
-    for (int i = 0; i < MAX_STEPS; ++i) {
-        t += STEP_SIZE;
-        positionOS += STEP_SIZE * rayDirectionOS;
+    for (int i = 0; i < _MaxSteps; ++i) {
+        t += _StepSize;
+        positionOS += _StepSize * rayDirectionOS;
         int nodeIndex = SVOGetNodeIndexAt(svo, positionOS / _Scale); // A bit of a hack
         float density = max(GetNodeDensity(svo, nodeIndex), 0.0);
 
@@ -71,7 +72,7 @@ half4 ShadowPassFragment(Varyings input, out float depth : SV_Depth) : SV_Target
             continue;
         }
 
-        float attenuation = min(exp(-STEP_SIZE * density), 1.f);
+        float attenuation = min(exp(-_StepSize * density), 1.f);
         finalDepth += transmittance * (1.0 - attenuation) * t;
         transmittance *= attenuation;
 
@@ -88,13 +89,13 @@ half4 ShadowPassFragment(Varyings input, out float depth : SV_Depth) : SV_Target
 
     half alpha = 1.0 - transmittance;
 
-#if defined(_ALPHATEST_ON)
+#if defined(_ALPHATEST_ON) // Opaque
     clip(alpha - _Cutoff);
-#elif defined(_SEMITRANSPARENT_SHADOWS)
-    // half dither = tex3D(_DitherMaskLOD, float3(input.positionHCS.xy * 0.25, alpha * 0.9375)).a;
-    // clip(dither - 0.01);
+#else // Transparent
+    #if defined(RADIANCE_FIELDS_SEMITRANSPARENT_SHADOWS_ON)
     half dither = InterleavedGradientNoise(input.positionHCS.xy, 0);
     clip(alpha - dither);
+    #endif
 #endif
 
     float3 finalPositionOS = input.rayOriginOS + finalDepth * normalize(input.unRayDirectionOS);

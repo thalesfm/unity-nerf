@@ -2,12 +2,11 @@
 #define INPUT_INCLUDED
 
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-// #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/SurfaceInput.hlsl"
 #include "Packages/xyz.example.nerf/ShaderLibrary/SparseVoxelOctree.hlsl"
 
-#define _Scale 0.5
-#define STEP_SIZE 0.003
-#define MAX_STEPS 1000
+#define _Scale 0.5 // TODO: Hacky, remove
+int _MaxSteps;
+float _StepSize;
 
 CBUFFER_START(UnityPerMaterial)
     float _Cutoff;

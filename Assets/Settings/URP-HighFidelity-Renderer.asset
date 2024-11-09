@@ -110,3 +110,8 @@ MonoBehaviour:
   m_Name: PlenOctreeRenderFeature
   m_EditorClassIdentifier: 
   m_Active: 1
+  settings:
+    MaxSteps: 1000
+    StepSize: 0.003
+    ShadowSettings:
+      SemitransparentShadows: 1

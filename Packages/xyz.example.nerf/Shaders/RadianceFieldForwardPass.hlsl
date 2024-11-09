@@ -16,14 +16,6 @@ struct Varyings
     float4 positionHCS                    : SV_POSITION;
     noperspective float3 rayOriginOS      : TEXCOORD0;
     noperspective float3 unRayDirectionOS : TEXCOORD1;
-
-// #if defined(REQUIRES_WORLD_SPACE_POS_INTERPOLATOR)
-//     float3 rayOriginWS                    : TEXCOORD2;
-// #endif
-
-// #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
-//     float4 shadowCoord                    : TEXCOORD3;
-// #endif
 };
 
 Varyings ForwardPassVertex(Attributes input)
@@ -33,18 +25,10 @@ Varyings ForwardPassVertex(Attributes input)
     float2 positionNDC = ComputeNormalizedDeviceCoordinates(output.positionHCS.xyz / output.positionHCS.w);
     float3 rayOriginWS = ComputeWorldSpacePosition(positionNDC, UNITY_NEAR_CLIP_VALUE, UNITY_MATRIX_I_VP);
     output.rayOriginOS = TransformWorldToObject(rayOriginWS);
+    // output.rayOriginOS = input.positionOS.xyz;
     float3 rayTargetWS = ComputeWorldSpacePosition(positionNDC, UNITY_RAW_FAR_CLIP_VALUE, UNITY_MATRIX_I_VP);
     float3 rayTargetOS = TransformWorldToObject(rayTargetWS);
     output.unRayDirectionOS = rayTargetOS - output.rayOriginOS;
-
-// #if defined(REQUIRES_WORLD_SPACE_POS_INTERPOLATOR)
-//     output.rayOriginWS = rayOriginWS;
-// #endif
-
-// #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
-//     output.shadowCoord = TransformWorldToShadowCoord(rayOriginWS);
-// #endif
-
     return output;
 }
 
@@ -57,14 +41,6 @@ half4 ForwardPassFragment(Varyings input, out float depth : SV_Depth) : SV_Targe
     // Transform from Unity's coordinate frame (XZY) to XYZ
     rayDirectionOS = rayDirectionOS.xzy;
     positionOS = positionOS.xzy;
-
-// #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
-//     float4 shadowCoord = input.shadowCoord;
-// #elif defined(MAIN_LIGHT_CALCULATE_SHADOWS)
-//     float4 shadowCoord = TransformWorldToShadowCoord(input.rayOriginWS);
-// #else
-//     float4 shadowCoord = float4(0, 0, 0, 0);
-// #endif
 
     float t;
     if (IntersectPointBox(positionOS / _Scale)) {
@@ -86,9 +62,9 @@ half4 ForwardPassFragment(Varyings input, out float depth : SV_Depth) : SV_Targe
     float finalDepth = 0.0;
     float transmittance = 1.0;
 
-    for (int i = 0; i < MAX_STEPS; ++i) {
-        t += STEP_SIZE;
-        positionOS += STEP_SIZE * rayDirectionOS;
+    for (int i = 0; i < _MaxSteps; ++i) {
+        t += _StepSize;
+        positionOS += _StepSize * rayDirectionOS;
         int nodeIndex = SVOGetNodeIndexAt(svo, positionOS / _Scale); // A bit of a hack
         float density = max(GetNodeDensity(svo, nodeIndex), 0.0);
 
@@ -97,7 +73,7 @@ half4 ForwardPassFragment(Varyings input, out float depth : SV_Depth) : SV_Targe
         }
 
         float3 voxelColor = ComputeNodeColor(svo, nodeIndex, shBasis);
-        float attenuation = min(exp(-STEP_SIZE * density), 1.f);
+        float attenuation = min(exp(-_StepSize * density), 1.f);
         finalColor += transmittance * (1.0 - attenuation) * voxelColor;
         finalDepth += transmittance * (1.0 - attenuation) * t;
         transmittance *= attenuation;
@@ -115,8 +91,7 @@ half4 ForwardPassFragment(Varyings input, out float depth : SV_Depth) : SV_Targe
         finalDepth *= 1.0 / (1.0 - transmittance);
     }
 
-    // alpha = AlphaDiscard(alpha, _Cutoff);
-#if _ALPHATEST_ON
+#if defined(_ALPHATEST_ON)
     clip(1.0 - transmittance - _Cutoff);
 #endif
 
