@@ -9,8 +9,8 @@ Shader "Universal Render Pipeline/Radiance Field"
         // _Blend("Blend", Float) = 0.0
         // _Cull("__cull", Float) = 2.0
         /* [Toggle(_ALPHATEST_ON)] */ _AlphaClip("Alpha Clip", Float) = 0.0
-        /* [Enum(UnityEngine.Rendering.BlendMode)] */ [HideInInspector] _SrcBlend ("_SrcBlend", Float) = 1.0 // 5.0 // SrcAlpha
-        /* [Enum(UnityEngine.Rendering.BlendMode)] */ [HideInInspector] _DstBlend ("_DstBlend", Float) = 0.0 // 10.0 // OneMinusSrcAlpha
+        /* [Enum(UnityEngine.Rendering.BlendMode)] */ [HideInInspector] _SrcBlend ("_SrcBlend", Float) = 1.0
+        /* [Enum(UnityEngine.Rendering.BlendMode)] */ [HideInInspector] _DstBlend ("_DstBlend", Float) = 0.0
         // [HideInInspector] _SrcBlendAlpha("Src Blend Alpha", Float) = 1.0
         // [HideInInspector] _DstBlendAlpha("Dst Blend Alpha", Float) = 0.0
 		/* [Enum(Off, 0, On, 1)] */ [HideInInspector] _ZWrite ("_ZWrite", Float) = 1.0
@@ -34,7 +34,7 @@ Shader "Universal Render Pipeline/Radiance Field"
 
         Blend [_SrcBlend] [_DstBlend]
         ZWrite [_ZWrite]
-        Cull Front
+        // Cull Back
         // AlphaToMask [_AlphaToMask]
 
         Pass
@@ -48,10 +48,12 @@ Shader "Universal Render Pipeline/Radiance Field"
             HLSLPROGRAM
             #pragma target 4.5
 
-            #pragma shader_feature_local_fragment _ALPHATEST_ON
-
             #pragma vertex ForwardPassVertex
             #pragma fragment ForwardPassFragment
+
+            #pragma shader_feature_local_fragment _ALPHATEST_ON
+
+            #pragma multi_compile_fragment _ DEBUG_DISPLAY
 
             #include "Packages/xyz.example.nerf/Shaders/RadianceFieldInput.hlsl"
             #include "Packages/xyz.example.nerf/Shaders/RadianceFieldForwardPass.hlsl"
@@ -68,7 +70,6 @@ Shader "Universal Render Pipeline/Radiance Field"
             ZWrite On
             ZTest LEqual
             ColorMask 0
-            // Cull [_Cull]
 
             HLSLPROGRAM
             #pragma target 4.5
@@ -78,7 +79,8 @@ Shader "Universal Render Pipeline/Radiance Field"
 
             #pragma shader_feature_local_fragment _ALPHATEST_ON
             #pragma multi_compile_fragment _ RADIANCE_FIELDS_SEMITRANSPARENT_SHADOWS_ON
-            // UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS
+
+            #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
 
             #include "Packages/xyz.example.nerf/Shaders/RadianceFieldInput.hlsl"
             #include "Packages/xyz.example.nerf/Shaders/RadianceFieldShadowCasterPass.hlsl"

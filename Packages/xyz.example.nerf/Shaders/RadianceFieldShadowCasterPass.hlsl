@@ -3,36 +3,60 @@
 
 // #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Random.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-#include "Packages/xyz.example.nerf/ShaderLibrary/AxisAlignedBoundingBox.hlsl"
+// #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/SurfaceInput.hlsl"
+// #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
 #include "Packages/xyz.example.nerf/ShaderLibrary/SphericalHarmonics.hlsl"
-#include "Packages/xyz.example.nerf/ShaderLibrary/Matrix.hlsl"
+
+float3 _LightDirection;
+float3 _LightPosition;
 
 struct Attributes
 {
     float4 positionOS       : POSITION;
+    float4 normalOS         : NORMAL;
 };
 
 struct Varyings
 {
-    float4 positionHCS                    : SV_POSITION;
-    noperspective float3 rayOriginOS      : TEXCOORD0;
-    noperspective float3 unRayDirectionOS : TEXCOORD1;
+    float4 positionHCS      : SV_POSITION;
+    float3 rayOriginOS      : TEXCOORD0;
+    float3 unRayDirectionOS : TEXCOORD1;
 };
+
+// float4 GetShadowPositionHClip(Attributes input)
+// {
+//     float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
+//     float3 normalWS = TransformObjectToWorldNormal(input.normalOS);
+// #if _CASTING_PUNCTUAL_LIGHT_SHADOW
+//     float3 lightDirectionWS = normalize(_LightPosition - positionWS);
+// #else
+//     float3 lightDirectionWS = _LightDirection;
+// #endif
+//     float4 positionCS = TransformWorldToHClip(ApplyShadowBias(positionWS, normalWS, lightDirectionWS));
+// #if UNITY_REVERSED_Z
+//     positionCS.z = min(positionCS.z, UNITY_NEAR_CLIP_VALUE);
+// #else
+//     positionCS.z = max(positionCS.z, UNITY_NEAR_CLIP_VALUE);
+// #endif
+//     return positionCS;
+// }
+
+float3 GetObjectSpaceRayDir(float3 positionOS)
+{
+#if _CASTING_PUNCTUAL_LIGHT_SHADOW
+    return positionOS - TransformWorldToObject(_LightPosition);
+#else
+    return -TransformWorldToObjectNormal(_LightDirection);
+#endif
+}
 
 Varyings ShadowPassVertex(Attributes input)
 {
-    float4x4 inverseModel = UNITY_MATRIX_I_M;
-    float4x4 inverseViewProj = inverse(UNITY_MATRIX_VP); // FIXME
-    
     Varyings output;
     output.positionHCS = TransformObjectToHClip(input.positionOS.xyz);
-    float2 positionNDC = ComputeNormalizedDeviceCoordinates(output.positionHCS.xyz / output.positionHCS.w);
-    float3 rayOriginWS = ComputeWorldSpacePosition(positionNDC, UNITY_NEAR_CLIP_VALUE, inverseViewProj);
-    output.rayOriginOS = mul(inverseModel, float4(rayOriginWS, 1.0)).xyz;
-    // output.rayOriginOS = input.positionOS.xyz;
-    float3 rayTargetWS = ComputeWorldSpacePosition(positionNDC, UNITY_RAW_FAR_CLIP_VALUE, inverseViewProj);
-    float3 rayTargetOS = mul(inverseModel, float4(rayTargetWS, 1.0)).xyz;
-    output.unRayDirectionOS = rayTargetOS - output.rayOriginOS;
+    // output.positionHCS = GetShadowPositionHClip(input);
+    output.rayOriginOS = input.positionOS.xyz;
+    output.unRayDirectionOS = GetObjectSpaceRayDir(input.positionOS.xyz);
     return output;
 }
 
@@ -46,19 +70,7 @@ half4 ShadowPassFragment(Varyings input, out float depth : SV_Depth) : SV_Target
     rayDirectionOS = rayDirectionOS.xzy;
     positionOS = positionOS.xzy;
 
-    float t;
-    if (IntersectPointBox(positionOS / _Scale)) {
-        t = 0.0;
-    } else {
-        t = IntersectRayBox(positionOS / _Scale, rayDirectionOS);
-        if (t == -1.0) {
-            discard;
-        } else {
-            t *= _Scale;
-            positionOS += t * rayDirectionOS;
-        }
-    }
-
+    float t = 0.0;
     float transmittance = 1.0;
     float finalDepth = 0.0;
 

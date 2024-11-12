@@ -2,15 +2,16 @@
 #define INPUT_INCLUDED
 
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+#include "Packages/xyz.example.nerf/ShaderLibrary/Input.hlsl"
 #include "Packages/xyz.example.nerf/ShaderLibrary/SparseVoxelOctree.hlsl"
 
-#define _Scale 0.5 // TODO: Hacky, remove
-int _MaxSteps;
-float _StepSize;
-
+// NOTE: Do not ifdef the properties here as SRP batcher can not handle different layouts.
 CBUFFER_START(UnityPerMaterial)
+    // Render settings
     float _Cutoff;
     float _MinTransmittance;
+
+    // Voxel octree
     int _SVOWidth;
     int _SVOHeight;
     int _SVODepth;
