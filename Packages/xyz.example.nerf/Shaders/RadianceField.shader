@@ -34,38 +34,33 @@ Shader "Universal Render Pipeline/Radiance Field"
 
         Blend [_SrcBlend] [_DstBlend]
         ZWrite [_ZWrite]
-        // Cull Back
+        // Cull [_Cull]
         // AlphaToMask [_AlphaToMask]
 
         Pass
         {
-            Tags
-            {
-                "LightMode" = "Volumetric"
-            }
-            // Name "Volumetric"
+            Name "VolumeForward"
+            Tags { "LightMode" = "VolumeForward" }
 
             HLSLPROGRAM
             #pragma target 4.5
 
-            #pragma vertex ForwardPassVertex
-            #pragma fragment ForwardPassFragment
+            #pragma vertex VolumeForwardVertex
+            #pragma fragment VolumeForwardFragment
 
             #pragma shader_feature_local_fragment _ALPHATEST_ON
 
             #pragma multi_compile_fragment _ DEBUG_DISPLAY
 
             #include "Packages/xyz.example.nerf/Shaders/RadianceFieldInput.hlsl"
-            #include "Packages/xyz.example.nerf/Shaders/RadianceFieldForwardPass.hlsl"
+            #include "Packages/xyz.example.nerf/Shaders/VolumeForwardPass.hlsl"
             ENDHLSL
         }
 
         Pass
         {
-            Tags
-            {
-                "LightMode" = "ShadowCaster"
-            }
+            Name "ShadowCaster"
+            Tags { "LightMode" = "ShadowCaster" }
 
             ZWrite On
             ZTest LEqual
@@ -74,16 +69,16 @@ Shader "Universal Render Pipeline/Radiance Field"
             HLSLPROGRAM
             #pragma target 4.5
 
-            #pragma vertex ShadowPassVertex
-            #pragma fragment ShadowPassFragment
+            #pragma vertex VolumeShadowCasterVertex
+            #pragma fragment VolumeShadowCasterFragment
 
             #pragma shader_feature_local_fragment _ALPHATEST_ON
-            #pragma multi_compile_fragment _ RADIANCE_FIELDS_SEMITRANSPARENT_SHADOWS_ON
+            #pragma multi_compile_fragment _ VOLUME_RENDERING_SEMITRANSPARENT_SHADOWS_ON
 
             #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
 
             #include "Packages/xyz.example.nerf/Shaders/RadianceFieldInput.hlsl"
-            #include "Packages/xyz.example.nerf/Shaders/RadianceFieldShadowCasterPass.hlsl"
+            #include "Packages/xyz.example.nerf/Shaders/VolumeShadowCasterPass.hlsl"
             ENDHLSL
         }
     }

@@ -7,14 +7,14 @@ namespace UnityNeRF
 {
     class DrawVolumetricsPass : ScriptableRenderPass
     {
-        private static readonly ShaderTagId shaderTagId = new("Volumetric");
+        private static readonly ShaderTagId shaderTagId = new("VolumeForward");
 
-        private VolumetricRenderSettings settings;
+        private VolumeRenderingSettings settings;
         private bool transparent;
         // private ScriptableRenderer renderer;
         private new ProfilingSampler profilingSampler = new(nameof(DrawVolumetricsPass));
 
-        public DrawVolumetricsPass(VolumetricRenderSettings settings, bool transparent)
+        public DrawVolumetricsPass(VolumeRenderingSettings settings, bool transparent)
         {
             this.settings = settings;
             this.transparent = transparent;

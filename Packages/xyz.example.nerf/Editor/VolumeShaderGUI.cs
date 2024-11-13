@@ -8,7 +8,7 @@ using RenderQueue = UnityEngine.Rendering.RenderQueue;
 
 namespace UnityNeRF.Editor
 {
-    public class VolumetricShaderGUI : ShaderGUI
+    public class VolumeShaderGUI : ShaderGUI
     {
         // protected Material material;
         protected MaterialEditor materialEditor;

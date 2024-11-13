@@ -3,8 +3,8 @@ using UnityEditor;
 
 namespace UnityNeRF.Editor
 {
-    [CustomEditor(typeof(VolumetricRenderFeature))]
-    internal class VolumetricRenderFeatureEditor : UnityEditor.Editor
+    [CustomEditor(typeof(VolumeRenderingFeature))]
+    internal class VolumeRenderingFeatureEditor : UnityEditor.Editor
     {
         private SerializedProperty maxStepsProp;
         private SerializedProperty stepSizeProp;

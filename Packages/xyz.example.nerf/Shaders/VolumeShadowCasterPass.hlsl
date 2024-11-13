@@ -1,11 +1,10 @@
-#ifndef SHADOW_CASTER_PASS_INCLUDED
-#define SHADOW_CASTER_PASS_INCLUDED
+#ifndef VOLUME_CASTER_PASS_INCLUDED
+#define VOLUME_CASTER_PASS_INCLUDED
 
-// #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Random.hlsl"
+#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/VolumeRendering.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 // #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/SurfaceInput.hlsl"
 // #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
-#include "Packages/xyz.example.nerf/ShaderLibrary/SphericalHarmonics.hlsl"
 
 float3 _LightDirection;
 float3 _LightPosition;
@@ -50,7 +49,7 @@ float3 GetObjectSpaceRayDir(float3 positionOS)
 #endif
 }
 
-Varyings ShadowPassVertex(Attributes input)
+Varyings VolumeShadowCasterVertex(Attributes input)
 {
     Varyings output;
     output.positionHCS = TransformObjectToHClip(input.positionOS.xyz);
@@ -60,59 +59,65 @@ Varyings ShadowPassVertex(Attributes input)
     return output;
 }
 
-half4 ShadowPassFragment(Varyings input, out float depth : SV_Depth) : SV_Target
+half4 VolumeShadowCasterFragment(Varyings input, out float outDepth : SV_Depth) : SV_Target
 {
-    SparseVoxelOctree svo = GetSparseVoxelOctree();
     float3 rayDirectionOS = normalize(input.unRayDirectionOS);
-    float3 positionOS = input.rayOriginOS /*/ _Scale*/;
+    float3 positionOS = input.rayOriginOS;
 
     // Transform from Unity's coordinate frame (XZY) to XYZ
     rayDirectionOS = rayDirectionOS.xzy;
     positionOS = positionOS.xzy;
 
-    float t = 0.0;
-    float transmittance = 1.0;
-    float finalDepth = 0.0;
+    VolumeData volume;
+    InitializeVolumeData(positionOS, rayDirectionOS, volume);
 
-    for (int i = 0; i < _MaxSteps; ++i) {
+    float t = 0.0;
+    float3 color = float3(0.0, 0.0, 0.0);
+    float depth = 0.0;
+    float transmittance = 1.0;
+
+    for (int i = 0; i < _MaxSteps; ++i)
+    {
         t += _StepSize;
         positionOS += _StepSize * rayDirectionOS;
-        int nodeIndex = SVOGetNodeIndexAt(svo, positionOS / _Scale); // A bit of a hack
-        float density = max(GetNodeDensity(svo, nodeIndex), 0.0);
+        float extinction = SampleExtinction(volume, positionOS / _Scale);
 
-        if (density == 0.0) {
+        if (extinction <= 0.0)
             continue;
-        }
 
-        float attenuation = min(exp(-_StepSize * density), 1.f);
-        finalDepth += transmittance * (1.0 - attenuation) * t;
+        float opticalDepth = OpticalDepthHomogeneousMedium(extinction, _StepSize);
+        float opacity = OpacityFromOpticalDepth(opticalDepth);
+        float attenuation = 1 - opacity; // TransmittanceFromOpticalDepth(opticalDepth);
+        
+        depth += transmittance * opacity * t;
         transmittance *= attenuation;
 
-        if (transmittance <= _MinTransmittance) {
-            finalDepth *= 1.0 / (1.0 - transmittance);
+        if (transmittance <= _MinTransmittance)
+        {
+            depth *= 1.0 / (1.0 - transmittance);
             transmittance = 0.0;
             break;
         }
     }
 
-    if (transmittance > 0.0) {
-        finalDepth *= 1.0 / (1.0 - transmittance);
+    if (transmittance > 0.0)
+    {
+        depth *= 1.0 / (1.0 - transmittance);
     }
 
-    half alpha = 1.0 - transmittance;
-
+    float alpha = 1.0 - transmittance;
 #if defined(_ALPHATEST_ON) // Opaque
     clip(alpha - _Cutoff);
 #else // Transparent
-    #if defined(RADIANCE_FIELDS_SEMITRANSPARENT_SHADOWS_ON)
+    #if defined(VOLUME_RENDERING_SEMITRANSPARENT_SHADOWS_ON)
     half dither = InterleavedGradientNoise(input.positionHCS.xy, 0);
     clip(alpha - dither);
     #endif
 #endif
 
-    float3 finalPositionOS = input.rayOriginOS + finalDepth * normalize(input.unRayDirectionOS);
-    depth = ComputeDepth(finalPositionOS);
+    float3 finalPositionOS = input.rayOriginOS + depth * normalize(input.unRayDirectionOS);
+    outDepth = ComputeDepth(finalPositionOS);
     return 0.0;
 }
 
-#endif // SHADOW_CASTER_PASS_INCLUDED
+#endif // VOLUME_CASTER_PASS_INCLUDED

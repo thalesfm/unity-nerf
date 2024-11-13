@@ -6,7 +6,7 @@ using UnityEngine.Rendering.Universal;
 namespace UnityNeRF
 {
     [Serializable]
-    public class VolumetricRenderSettings
+    public class VolumeRenderingSettings
     {
         public int MaxSteps = 1000;
         public float StepSize = 0.003f;
@@ -19,11 +19,11 @@ namespace UnityNeRF
         public bool SemitransparentShadows;
     }
 
-    [DisallowMultipleRendererFeature("Volumetric Rendering")]
-    public class VolumetricRenderFeature : ScriptableRendererFeature
+    [DisallowMultipleRendererFeature("Volume Rendering")]
+    public class VolumeRenderingFeature : ScriptableRendererFeature
     {
         [SerializeField]
-        private VolumetricRenderSettings settings = new();
+        private VolumeRenderingSettings settings = new();
 
         private SetupShadowCasterPass setupPass;
         private DrawVolumetricsPass opaqueRenderPass;

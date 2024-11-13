@@ -1,5 +1,5 @@
-#ifndef RADIANCE_FIELDS_DEBUG_INCLUDED
-#define RADIANCE_FIELDS_DEBUG_INCLUDED
+#ifndef VOLUME_DEBUG_INCLUDED
+#define VOLUME_DEBUG_INCLUDED
 
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Debug/DebuggingCommon.hlsl"
 
@@ -78,4 +78,4 @@ bool CanDebugOverrideOutputColor(out half4 debugColor)
 
 #endif
 
-#endif // RADIANCE_FIELDS_DEBUG_INCLUDED
+#endif // VOLUME_DEBUG_INCLUDED

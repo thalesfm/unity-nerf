@@ -1,9 +1,10 @@
-#ifndef INPUT_INCLUDED
-#define INPUT_INCLUDED
+#ifndef RADIANCE_INPUT_FIELD_INCLUDED
+#define RADIANCE_INPUT_FIELD_INCLUDED
 
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-#include "Packages/xyz.example.nerf/ShaderLibrary/Input.hlsl"
+#include "Packages/xyz.example.nerf/ShaderLibrary/VolumeInput.hlsl"
 #include "Packages/xyz.example.nerf/ShaderLibrary/SparseVoxelOctree.hlsl"
+#include "Packages/xyz.example.nerf/ShaderLibrary/SphericalHarmonics.hlsl"
 
 // NOTE: Do not ifdef the properties here as SRP batcher can not handle different layouts.
 CBUFFER_START(UnityPerMaterial)
@@ -22,19 +23,11 @@ CBUFFER_START(UnityPerMaterial)
     StructuredBuffer<float> _SVONodeData;
 CBUFFER_END
 
-SparseVoxelOctree GetSparseVoxelOctree()
+struct VolumeData
 {
     SparseVoxelOctree svo;
-    svo.width = _SVOWidth;
-    svo.height = _SVOHeight;
-    svo.depth = _SVODepth;
-    svo.basisDim = _SVOBasisDim;
-    svo.dataDim = _SVODataDim;
-    svo.maxLevel = _SVOMaxLevel;
-    svo.nodeChildren = _SVONodeChildren;
-    svo.nodeData = _SVONodeData;
-    return svo;
-}
+    float shBasis[25];
+};
 
 float GetNodeDensity(SparseVoxelOctree svo, int nodeIndex)
 {
@@ -55,10 +48,34 @@ float3 ComputeNodeColor(SparseVoxelOctree svo, int nodeIndex, float shBasis[25])
     return pow(color, 2.2);
 }
 
-float ComputeDepth(float3 positionOS)
+void InitializeSparseVoxelOctree(inout SparseVoxelOctree svo)
 {
-    float4 positionHCS = TransformObjectToHClip(positionOS);
-    return positionHCS.z / positionHCS.w;
+    svo.width = _SVOWidth;
+    svo.height = _SVOHeight;
+    svo.depth = _SVODepth;
+    svo.basisDim = _SVOBasisDim;
+    svo.dataDim = _SVODataDim;
+    svo.maxLevel = _SVOMaxLevel;
+    svo.nodeChildren = _SVONodeChildren;
+    svo.nodeData = _SVONodeData;
 }
 
-#endif // INPUT_INCLUDED
+void InitializeVolumeData(float3 rayOrigin, float3 rayDirection, inout VolumeData volume)
+{
+    InitializeSparseVoxelOctree(volume.svo);
+    EvalSH25(rayDirection, volume.shBasis);
+}
+
+float SampleExtinction(VolumeData volume, float3 position)
+{
+    int nodeIndex = SVOGetNodeIndexAt(volume.svo, position);
+    return GetNodeDensity(volume.svo, nodeIndex);
+}
+
+float3 SampleRadiance(VolumeData volume, float3 position)
+{
+    int nodeIndex = SVOGetNodeIndexAt(volume.svo, position);
+    return ComputeNodeColor(volume.svo, nodeIndex, volume.shBasis);
+}
+
+#endif // RADIANCE_FIELD_INPUT_INCLUDED

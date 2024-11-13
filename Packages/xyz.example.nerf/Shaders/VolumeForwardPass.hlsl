@@ -1,11 +1,10 @@
-#ifndef UNIVERSAL_FORWARD_PASS_INCLUDED
-#define UNIVERSAL_FORWARD_PASS_INCLUDED
+#ifndef VOLUME_FORWARD_PASS_INCLUDED
+#define VOLUME_FORWARD_PASS_INCLUDED
 
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/VolumeRendering.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
-#include "Packages/xyz.example.nerf/ShaderLibrary/Debug.hlsl"
-#include "Packages/xyz.example.nerf/ShaderLibrary/SphericalHarmonics.hlsl"
+#include "Packages/xyz.example.nerf/ShaderLibrary/VolumeDebug.hlsl"
 
 struct Attributes
 {
@@ -19,30 +18,6 @@ struct Varyings
     float3 unRayDirectionOS : TEXCOORD1;
 };
 
-struct CustomData
-{
-    SparseVoxelOctree svo;
-    float shBasis[25];
-};
-
-void InitializeCustomData(Varyings input, inout CustomData customData)
-{
-    customData.svo = GetSparseVoxelOctree();
-    EvalSH25(normalize(input.unRayDirectionOS).xzy, customData.shBasis);
-}
-
-float SampleExtinction(CustomData customData, float3 position)
-{
-    int nodeIndex = SVOGetNodeIndexAt(customData.svo, position);
-    return GetNodeDensity(customData.svo, nodeIndex);
-}
-
-float3 SampleRadiance(CustomData customData, float3 position)
-{
-    int nodeIndex = SVOGetNodeIndexAt(customData.svo, position);
-    return ComputeNodeColor(customData.svo, nodeIndex, customData.shBasis);
-}
-
 float3 GetObjectSpaceRayDir(float3 positionOS)
 {
     if (IsPerspectiveProjection())
@@ -55,7 +30,7 @@ float3 GetObjectSpaceRayDir(float3 positionOS)
     }
 }
 
-Varyings ForwardPassVertex(Attributes input)
+Varyings VolumeForwardVertex(Attributes input)
 {
     Varyings output;
     output.positionHCS = TransformObjectToHClip(input.positionOS.xyz);
@@ -64,7 +39,7 @@ Varyings ForwardPassVertex(Attributes input)
     return output;
 }
 
-half4 ForwardPassFragment(Varyings input, out float outDepth : SV_Depth) : SV_Target
+half4 VolumeForwardFragment(Varyings input, out float outDepth : SV_Depth) : SV_Target
 {    
     float3 rayDirectionOS = normalize(input.unRayDirectionOS);
     float3 positionOS = input.rayOriginOS;
@@ -73,8 +48,8 @@ half4 ForwardPassFragment(Varyings input, out float outDepth : SV_Depth) : SV_Ta
     rayDirectionOS = rayDirectionOS.xzy;
     positionOS = positionOS.xzy;
 
-    CustomData customData;
-    InitializeCustomData(input, customData);
+    VolumeData volume;
+    InitializeVolumeData(positionOS, rayDirectionOS, volume);
 
     float t = 0.0;
     float3 color = float3(0.0, 0.0, 0.0);
@@ -86,11 +61,11 @@ half4 ForwardPassFragment(Varyings input, out float outDepth : SV_Depth) : SV_Ta
         t += _StepSize;
         positionOS += _StepSize * rayDirectionOS;
 
-        float extinction = SampleExtinction(customData, positionOS / _Scale);
+        float extinction = SampleExtinction(volume, positionOS / _Scale);
         if (extinction <= 0.0)
             continue;
 
-        float3 radiance = SampleRadiance(customData, positionOS / _Scale);
+        float3 radiance = SampleRadiance(volume, positionOS / _Scale);
         float opticalDepth = OpticalDepthHomogeneousMedium(extinction, _StepSize);
         float opacity = OpacityFromOpticalDepth(opticalDepth);
         float attenuation = 1 - opacity; // TransmittanceFromOpticalDepth(opticalDepth);
@@ -115,8 +90,8 @@ half4 ForwardPassFragment(Varyings input, out float outDepth : SV_Depth) : SV_Ta
     }
 
 #if defined(_ALPHATEST_ON)
-    float opacity = 1.0 - transmittance;
-    clip(opacity - _Cutoff);
+    float alpha = 1.0 - transmittance;
+    clip(alpha - _Cutoff);
 #endif
 
     float3 finalPositionOS = input.rayOriginOS + depth * normalize(input.unRayDirectionOS);
@@ -132,4 +107,4 @@ half4 ForwardPassFragment(Varyings input, out float outDepth : SV_Depth) : SV_Ta
     return half4(color, 1 - transmittance);
 }
 
-#endif // UNIVERSAL_FORWARD_PASS_INCLUDED
+#endif // VOLUME_FORWARD_PASS_INCLUDED

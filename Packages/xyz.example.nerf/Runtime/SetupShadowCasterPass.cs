@@ -8,9 +8,9 @@ namespace UnityNeRF
     {
         private static readonly ProfilingSampler m_ProfilingSampler = new("SetupShadowCasterPass");
 
-        private VolumetricRenderSettings settings;
+        private VolumeRenderingSettings settings;
 
-        public SetupShadowCasterPass(VolumetricRenderSettings settings)
+        public SetupShadowCasterPass(VolumeRenderingSettings settings)
         {
             base.profilingSampler = new ProfilingSampler(nameof(SetupShadowCasterPass));
             this.settings = settings;
@@ -35,7 +35,7 @@ namespace UnityNeRF
         {
             using (new ProfilingScope(cmd, m_ProfilingSampler))
             {
-                CoreUtils.SetKeyword(cmd, "RADIANCE_FIELDS_SEMITRANSPARENT_SHADOWS_ON", enableDithering);
+                CoreUtils.SetKeyword(cmd, "VOLUME_RENDERING_SEMITRANSPARENT_SHADOWS_ON", enableDithering);
                 
                 // Matrix4x4 viewMatrix = renderingData.cameraData.GetViewMatrix();
                 // Matrix4x4 projectionMatrix = renderingData.cameraData.GetGPUProjectionMatrix();
