@@ -1,7 +1,7 @@
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
-namespace UnityNeRF
+namespace UnityNeRF.Editor
 {
     internal static class Vector3Extensions
     {

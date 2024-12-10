@@ -1,6 +1,5 @@
 using System;
 using NUnit.Framework;
-using NumSharp;
 using UnityNeRF.Editor.IO;
 
 namespace UnityNeRF.Editor.Tests
